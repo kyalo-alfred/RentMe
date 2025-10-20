@@ -35,7 +35,7 @@ RentMe/frontend/
 ## 🚀 Setup
 ```bash
 # Clone repo
-git clone https://github.com/<username>/<repo-name>.git
+git clone https://github.com/kyalo-alfred/RentMe.git
 cd RentMe
 
 # Backend setup
