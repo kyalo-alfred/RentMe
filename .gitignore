@@ -40,3 +40,8 @@ client/.vercel
 client/*.tsbuildinfo
 client/next-env.d.ts
 .vercel
+
+# backend stuff
+server/venv/
+server/server/settings.py
+
