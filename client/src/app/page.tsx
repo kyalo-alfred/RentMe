@@ -1,4 +1,4 @@
-//
+// landing page for 
 
 import Image from "next/image";
 
