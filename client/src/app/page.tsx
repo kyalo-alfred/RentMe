@@ -1,90 +1,125 @@
-// landing page for
+// landing page for the project
 
 'use client';
 
-import Image from "next/image";
-import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
+import {
+  NavigationMenu,
+  NavigationMenuItem,
+  NavigationMenuLink,
+  NavigationMenuList,
+  navigationMenuTriggerStyle,
+} from "@/components/ui/navigation-menu";
+import { Card, CardContent } from '@/components/ui/card';
+import { Package, Clock, Shield, TrendingUp } from 'lucide-react';
 
 export default function Home() {
-  const [message, setMessage] = useState<string | null>(null);
-
-  const testConnection = async () => {
-    try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/hello/`);
-      const data = await response.json();
-      setMessage(data.message);
-    } catch (error) {
-      setMessage('Error connecting to backend');
-    }
-  };
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+    <div className="min-h-screen bg-white dark:bg-black text-black dark:text-white">
+      <header className="border-b border-black">
+        <div className="container mx-auto px-4 py-4">
+          <div className="flex justify-between items-center">
+            <h1 className="text-2xl font-bold">RentMe</h1>
+
+            <NavigationMenu>
+              <NavigationMenuList>
+                <NavigationMenuItem>
+                  <NavigationMenuLink asChild className={navigationMenuTriggerStyle()}>
+                    <Link href="/">Home</Link>
+                  </NavigationMenuLink>
+                </NavigationMenuItem>
+                <NavigationMenuItem>
+                  <NavigationMenuLink asChild className={navigationMenuTriggerStyle()}>
+                    <Link href="/about">About</Link>
+                  </NavigationMenuLink>
+                </NavigationMenuItem>
+                <NavigationMenuItem>
+                  <NavigationMenuLink asChild className={navigationMenuTriggerStyle()}>
+                    <Link href="/listings">Listings</Link>
+                  </NavigationMenuLink>
+                </NavigationMenuItem>
+              </NavigationMenuList>
+            </NavigationMenu>
+
+            <div className="flex gap-2">
+              <Button asChild variant="outline" className="border-black text-black hover:bg-black hover:text-white">
+                <Link href="/signin">Sign In</Link>
+              </Button>
+              <Button asChild className="bg-black text-white hover:bg-gray-800">
+                <Link href="/signup">Sign Up</Link>
+              </Button>
+            </div>
+          </div>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-        <a
-        className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-        href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-        target="_blank"
-        rel="noopener noreferrer"
-        >
-        <Image
-        className="dark:invert"
-        src="/vercel.svg"
-        alt="Vercel logomark"
-        width={16}
-        height={16}
-        />
-        Deploy Now
-        </a>
-        <a
-        className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-        href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-        target="_blank"
-        rel="noopener noreferrer"
-        >
-        Documentation
-        </a>
+      </header>
+	      <section className="container mx-auto px-4 py-20 text-center">
+        <h2 className="text-5xl font-bold mb-6">Rent What You Need.<br />Share What You Own.</h2>
+        <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
+          A platform connecting people who need items temporarily with those who have them. 
+          From tools to cameras, rent anything you need or earn from what you own.
+        </p>
+        <div className="space-x-4">
+          <Button size="lg" className="bg-black text-white hover:bg-gray-800">
+            <a href="/signup">Get Started</a>
+          </Button>
+          <Button size="lg" variant="outline" className="border-black text-black hover:bg-black hover:text-white">
+            Browse Items
+          </Button>
         </div>
-        <div className="mt-8">
-          <button
-            onClick={testConnection}
-            className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-          >
-            Test Backend Connection
-          </button>
-          {message && <p className="mt-4 text-lg">{message}</p>}
+      </section>
+	      <section className="bg-black text-white py-20">
+        <div className="container mx-auto px-4">
+          <h3 className="text-3xl font-bold text-center mb-12">How It Works</h3>
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+            <Card className="bg-white text-black border-none">
+              <CardContent className="pt-6">
+                <Package className="w-12 h-12 mb-4" />
+                <h4 className="text-xl font-bold mb-2">List Items</h4>
+                <p className="text-gray-600">Post items you own and set your rental terms and pricing.</p>
+              </CardContent>
+            </Card>
+            
+            <Card className="bg-white text-black border-none">
+              <CardContent className="pt-6">
+                <Clock className="w-12 h-12 mb-4" />
+                <h4 className="text-xl font-bold mb-2">Book Rentals</h4>
+                <p className="text-gray-600">Find what you need and book it for the duration you require.</p>
+              </CardContent>
+            </Card>
+            
+            <Card className="bg-white text-black border-none">
+              <CardContent className="pt-6">
+                <Shield className="w-12 h-12 mb-4" />
+                <h4 className="text-xl font-bold mb-2">Secure Payments</h4>
+                <p className="text-gray-600">Make safe demo payments through our integrated system.</p>
+              </CardContent>
+            </Card>
+            
+            <Card className="bg-white text-black border-none">
+              <CardContent className="pt-6">
+                <TrendingUp className="w-12 h-12 mb-4" />
+                <h4 className="text-xl font-bold mb-2">Choose Delivery</h4>
+                <p className="text-gray-600">Select from mock courier options for convenient pickup and return.</p>
+              </CardContent>
+            </Card>
+          </div>
         </div>
-      </main>
+	</section>
+      <section className="bg-black text-white py-20">
+        <div className="container mx-auto px-4 text-center">
+          <h3 className="text-4xl font-bold mb-6">Ready to Start Renting?</h3>
+          <p className="text-xl mb-8 text-gray-300">Join our community today and unlock access to thousands of items.</p>
+          <Button size="lg" className="bg-white text-black hover:bg-gray-200">
+            <a href="/signup">Create Your Account</a>
+          </Button>
+        </div>
+      </section>
+	      <footer className="border-t border-black py-8">
+        <div className="container mx-auto px-4 text-center text-gray-600">
+          <p>&copy; 2025 RentMe. All rights reserved.</p>
+        </div>
+      </footer>
     </div>
   );
 }
