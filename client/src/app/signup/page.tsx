@@ -24,7 +24,7 @@ export default function SignUpPage() {
   };
 
   const handleSubmit = () => {
-    // Handle sign up logic here - connect to your Django backend
+    // Handle sign up logic here - connect to backend
     if (formData.password !== formData.confirmPassword) {
       console.error('Passwords do not match');
       return;
