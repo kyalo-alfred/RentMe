@@ -60,11 +60,11 @@ export default function Home() {
           From tools to cameras, rent anything you need or earn from what you own.
         </p>
         <div className="space-x-4">
-          <Button size="lg" className="bg-black text-white hover:bg-gray-800">
-            <a href="/signup">Get Started</a>
+          <Button asChild size="lg" className="bg-black text-white hover:bg-gray-800">
+            <Link href="/signup">Get Started</Link>
           </Button>
-          <Button size="lg" variant="outline" className="border-black text-black hover:bg-black hover:text-white">
-            Browse Items
+          <Button asChild size="lg" variant="outline" className="border-black text-black hover:bg-black hover:text-white">
+            <Link href="/listings">Browse Items</Link>
           </Button>
         </div>
       </section>
@@ -110,8 +110,8 @@ export default function Home() {
         <div className="container mx-auto px-4 text-center">
           <h3 className="text-4xl font-bold mb-6">Ready to Start Renting?</h3>
           <p className="text-xl mb-8 text-gray-300">Join our community today and unlock access to thousands of items.</p>
-          <Button size="lg" className="bg-white text-black hover:bg-gray-200">
-            <a href="/signup">Create Your Account</a>
+          <Button asChild size="lg" className="bg-white text-black hover:bg-gray-200">
+            <Link href="/signup">Create Your Account</Link>
           </Button>
         </div>
       </section>
