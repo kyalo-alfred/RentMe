@@ -44,4 +44,8 @@ client/next-env.d.ts
 # backend stuff
 server/venv/
 server/server/settings.py
+server/db.sqlite3
+server/**/__pycache__/
+server/**/*.pyc
+server/logistics/  # Old/empty logistics directory
 
