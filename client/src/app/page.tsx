@@ -53,10 +53,10 @@ export default function Home() {
           </div>
         </div>
       </header>
-	      <section className="container mx-auto px-4 py-20 text-center">
+      <section className="container mx-auto px-4 py-20 text-center">
         <h2 className="text-5xl font-bold mb-6">Rent What You Need.<br />Share What You Own.</h2>
         <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
-          A platform connecting people who need items temporarily with those who have them. 
+          A platform connecting people who need items temporarily with those who have them.
           From tools to cameras, rent anything you need or earn from what you own.
         </p>
         <div className="space-x-4">
@@ -68,7 +68,7 @@ export default function Home() {
           </Button>
         </div>
       </section>
-	      <section className="bg-black text-white py-20">
+      <section className="bg-black text-white py-20">
         <div className="container mx-auto px-4">
           <h3 className="text-3xl font-bold text-center mb-12">How It Works</h3>
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
@@ -79,7 +79,7 @@ export default function Home() {
                 <p className="text-gray-600">Post items you own and set your rental terms and pricing.</p>
               </CardContent>
             </Card>
-            
+
             <Card className="bg-white text-black border-none">
               <CardContent className="pt-6">
                 <Clock className="w-12 h-12 mb-4" />
@@ -87,7 +87,7 @@ export default function Home() {
                 <p className="text-gray-600">Find what you need and book it for the duration you require.</p>
               </CardContent>
             </Card>
-            
+
             <Card className="bg-white text-black border-none">
               <CardContent className="pt-6">
                 <Shield className="w-12 h-12 mb-4" />
@@ -95,7 +95,7 @@ export default function Home() {
                 <p className="text-gray-600">Make safe demo payments through our integrated system.</p>
               </CardContent>
             </Card>
-            
+
             <Card className="bg-white text-black border-none">
               <CardContent className="pt-6">
                 <TrendingUp className="w-12 h-12 mb-4" />
@@ -105,7 +105,7 @@ export default function Home() {
             </Card>
           </div>
         </div>
-	</section>
+      </section>
       <section className="bg-black text-white py-20">
         <div className="container mx-auto px-4 text-center">
           <h3 className="text-4xl font-bold mb-6">Ready to Start Renting?</h3>
@@ -115,7 +115,7 @@ export default function Home() {
           </Button>
         </div>
       </section>
-	      <footer className="border-t border-black py-8">
+      <footer className="border-t border-black py-8">
         <div className="container mx-auto px-4 text-center text-gray-600">
           <p>&copy; 2025 RentMe. All rights reserved.</p>
         </div>

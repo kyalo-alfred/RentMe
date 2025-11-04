@@ -2,12 +2,14 @@
 
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 
 export default function SignUpPage() {
+  const router = useRouter();
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -30,6 +32,8 @@ export default function SignUpPage() {
       return;
     }
     console.log('Sign up:', formData);
+    // Redirect to listings page after successful signup
+    router.push('/listings');
   };
 
   return (
