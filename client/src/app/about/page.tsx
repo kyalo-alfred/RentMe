@@ -111,53 +111,6 @@ export default function About() {
           </div>
         </div>
 
-        <section className="bg-black text-white py-20 -mx-4 px-4">
-          <div className="container mx-auto">
-            <h3 className="text-3xl font-bold text-center mb-12">Technology Stack</h3>
-            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
-              <Card className="bg-white text-black border-none">
-                <CardHeader>
-                  <Globe className="w-12 h-12 mb-4" />
-                  <CardTitle>Frontend</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-gray-600">Built with React.js and Next.js for a modern, responsive user experience.</p>
-                </CardContent>
-              </Card>
-
-              <Card className="bg-white text-black border-none">
-                <CardHeader>
-                  <Code className="w-12 h-12 mb-4" />
-                  <CardTitle>Backend</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-gray-600">Powered by Django (Python) providing robust API and business logic.</p>
-                </CardContent>
-              </Card>
-
-              <Card className="bg-white text-black border-none">
-                <CardHeader>
-                  <Database className="w-12 h-12 mb-4" />
-                  <CardTitle>Database</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-gray-600">PostgreSQL ensures reliable data storage and complex queries.</p>
-                </CardContent>
-              </Card>
-
-              <Card className="bg-white text-black border-none">
-                <CardHeader>
-                  <Users className="w-12 h-12 mb-4" />
-                  <CardTitle>Features</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-gray-600">User management, item listings, booking system, and admin dashboard.</p>
-                </CardContent>
-              </Card>
-            </div>
-          </div>
-        </section>
-
         <section className="py-20 text-center">
           <h3 className="text-3xl font-bold mb-6">Join Our Community</h3>
           <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
