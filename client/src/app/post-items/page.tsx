@@ -252,7 +252,7 @@ export default function PostItemPage() {
               {/* Pricing */}
               <div className="space-y-3">
                 <Label className="text-black font-medium text-lg">
-                  Rental Price <span className="text-red-600">*</span>
+                  Price <span className="text-red-600">*</span>
                 </Label>
                 <div className="grid md:grid-cols-2 gap-4">
                   <div className="space-y-2">
