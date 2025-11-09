@@ -2,38 +2,82 @@
 
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 
 export default function SignUpPage() {
-  const router = useRouter();
+  const { register } = useAuth();
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
+    username: '',
     email: '',
     password: '',
-    confirmPassword: ''
+    confirmPassword: '',
+    phoneNumber: ''
   });
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
 
-  const handleChange = (field, value) => {
+  const handleChange = (field: string, value: string) => {
     setFormData({
       ...formData,
       [field]: value
     });
   };
 
-  const handleSubmit = () => {
-    // Handle sign up logic here - connect to backend
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError('');
+
+    // Validation
     if (formData.password !== formData.confirmPassword) {
-      console.error('Passwords do not match');
+      setError('Passwords do not match');
       return;
     }
-    console.log('Sign up:', formData);
-    // Redirect to listings page after successful signup
-    router.push('/listings');
+
+    if (formData.password.length < 8) {
+      setError('Password must be at least 8 characters long');
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      await register({
+        username: formData.username,
+        email: formData.email,
+        password: formData.password,
+        password2: formData.confirmPassword,
+        first_name: formData.firstName,
+        last_name: formData.lastName,
+        phone_number: formData.phoneNumber,
+      });
+    } catch (err: any) {
+      let errorMessage = 'Registration failed. Please try again.';
+
+      try {
+        const errorObj = JSON.parse(err.message);
+        if (errorObj.username) {
+          errorMessage = `Username: ${errorObj.username[0]}`;
+        } else if (errorObj.email) {
+          errorMessage = `Email: ${errorObj.email[0]}`;
+        } else if (errorObj.password) {
+          errorMessage = `Password: ${errorObj.password[0]}`;
+        } else {
+          errorMessage = Object.values(errorObj)[0] as string;
+        }
+      } catch {
+        errorMessage = err.message || errorMessage;
+      }
+
+      setError(errorMessage);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -55,7 +99,13 @@ export default function SignUpPage() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4">
+            <form onSubmit={handleSubmit} className="space-y-4">
+              {error && (
+                <div className="p-3 bg-red-50 border border-red-200 rounded text-red-600 text-sm">
+                  {error}
+                </div>
+              )}
+
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="firstName" className="text-black font-medium">First Name</Label>
@@ -66,6 +116,7 @@ export default function SignUpPage() {
                     value={formData.firstName}
                     onChange={(e) => handleChange('firstName', e.target.value)}
                     className="border-black focus:ring-black"
+                    required
                   />
                 </div>
                 <div className="space-y-2">
@@ -77,9 +128,24 @@ export default function SignUpPage() {
                     value={formData.lastName}
                     onChange={(e) => handleChange('lastName', e.target.value)}
                     className="border-black focus:ring-black"
+                    required
                   />
                 </div>
               </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="username" className="text-black font-medium">Username</Label>
+                <Input
+                  id="username"
+                  type="text"
+                  placeholder="johndoe"
+                  value={formData.username}
+                  onChange={(e) => handleChange('username', e.target.value)}
+                  className="border-black focus:ring-black"
+                  required
+                />
+              </div>
+
               <div className="space-y-2">
                 <Label htmlFor="signup-email" className="text-black font-medium">Email</Label>
                 <Input
@@ -89,8 +155,22 @@ export default function SignUpPage() {
                   value={formData.email}
                   onChange={(e) => handleChange('email', e.target.value)}
                   className="border-black focus:ring-black"
+                  required
                 />
               </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="phoneNumber" className="text-black font-medium">Phone Number (Optional)</Label>
+                <Input
+                  id="phoneNumber"
+                  type="tel"
+                  placeholder="+1234567890"
+                  value={formData.phoneNumber}
+                  onChange={(e) => handleChange('phoneNumber', e.target.value)}
+                  className="border-black focus:ring-black"
+                />
+              </div>
+
               <div className="space-y-2">
                 <Label htmlFor="signup-password" className="text-black font-medium">Password</Label>
                 <Input
@@ -100,8 +180,10 @@ export default function SignUpPage() {
                   value={formData.password}
                   onChange={(e) => handleChange('password', e.target.value)}
                   className="border-black focus:ring-black"
+                  required
                 />
               </div>
+
               <div className="space-y-2">
                 <Label htmlFor="confirmPassword" className="text-black font-medium">Confirm Password</Label>
                 <Input
@@ -111,15 +193,18 @@ export default function SignUpPage() {
                   value={formData.confirmPassword}
                   onChange={(e) => handleChange('confirmPassword', e.target.value)}
                   className="border-black focus:ring-black"
+                  required
                 />
               </div>
+
               <Button
-                onClick={handleSubmit}
-                className="w-full bg-black text-white hover:bg-gray-800"
+                type="submit"
+                disabled={loading}
+                className="w-full bg-black text-white hover:bg-gray-800 disabled:opacity-50"
               >
-                Create Account
+                {loading ? 'Creating Account...' : 'Create Account'}
               </Button>
-            </div>
+            </form>
 
             <div className="mt-6 text-center text-sm">
               <p className="text-gray-600">
