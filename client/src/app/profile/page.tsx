@@ -56,7 +56,7 @@ export default function AccountPage() {
     }
   }, [user]);
 
-    // Mock user listings - replace with API call
+  // Mock user listings - replace with API call
   const userListings = [
     {
       id: 1,
@@ -316,7 +316,7 @@ export default function AccountPage() {
                       {updateSuccess}
                     </div>
                   )}
-                  
+
                   <div className="space-y-4">
                     <div className="grid md:grid-cols-2 gap-4">
                       <div className="space-y-2">
@@ -510,7 +510,7 @@ export default function AccountPage() {
                   <div className="space-y-6">
                     <div className="space-y-4">
                       <h3 className="font-bold text-lg">Change Password</h3>
-                      
+
                       {passwordError && (
                         <div className="p-3 bg-red-50 border border-red-200 rounded text-red-600 text-sm">
                           {passwordError}
@@ -521,11 +521,11 @@ export default function AccountPage() {
                           {passwordSuccess}
                         </div>
                       )}
-                      
+
                       <div className="space-y-2">
                         <Label className="text-black font-medium">Current Password</Label>
-                        <Input 
-                          type="password" 
+                        <Input
+                          type="password"
                           className="border-black"
                           value={passwordData.old_password}
                           onChange={(e) => setPasswordData({ ...passwordData, old_password: e.target.value })}
@@ -533,8 +533,8 @@ export default function AccountPage() {
                       </div>
                       <div className="space-y-2">
                         <Label className="text-black font-medium">New Password</Label>
-                        <Input 
-                          type="password" 
+                        <Input
+                          type="password"
                           className="border-black"
                           value={passwordData.new_password}
                           onChange={(e) => setPasswordData({ ...passwordData, new_password: e.target.value })}
@@ -542,14 +542,14 @@ export default function AccountPage() {
                       </div>
                       <div className="space-y-2">
                         <Label className="text-black font-medium">Confirm New Password</Label>
-                        <Input 
-                          type="password" 
+                        <Input
+                          type="password"
                           className="border-black"
                           value={passwordData.confirm_password}
                           onChange={(e) => setPasswordData({ ...passwordData, confirm_password: e.target.value })}
                         />
                       </div>
-                      <Button 
+                      <Button
                         className="bg-black text-white hover:bg-gray-800"
                         onClick={handlePasswordChange}
                       >
