@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RentMe - User Registration</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .register-container {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            padding: 40px;
+            width: 100%;
+            max-width: 450px;
+        }
+        
+        .register-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .register-header h1 {
+            color: #333;
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+        
+        .register-header p {
+            color: #666;
+            font-size: 14px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 500;
+            font-size: 14px;
+        }
+        
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 5px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .register-button {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            margin-top: 10px;
+        }
+        
+        .register-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        .register-button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        
+        .message {
+            padding: 12px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            display: none;
+        }
+        
+        .message.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .message.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .message.show {
+            display: block;
+        }
+        
+        .login-link {
+            text-align: center;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #e0e0e0;
+        }
+        
+        .login-link a {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        
+        .login-link a:hover {
+            text-decoration: underline;
+        }
+        
+        .loading {
+            display: none;
+            text-align: center;
+            margin-top: 10px;
+        }
+        
+        .loading.show {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="register-container">
+        <div class="register-header">
+            <h1>RentMe</h1>
+            <p>Create Your Account</p>
+        </div>
+        
+        <div id="message" class="message"></div>
+        
+        <form id="registerForm">
+            <div class="form-group">
+                <label for="email">Email Address *</label>
+                <input type="email" id="email" name="email" required placeholder="Enter your email">
+            </div>
+            
+            <div class="form-group">
+                <label for="username">Username *</label>
+                <input type="text" id="username" name="username" required placeholder="Choose a username">
+            </div>
+            
+            <div class="form-group">
+                <label for="password">Password *</label>
+                <input type="password" id="password" name="password" required placeholder="Enter password">
+            </div>
+            
+            <div class="form-group">
+                <label for="password2">Confirm Password *</label>
+                <input type="password" id="password2" name="password2" required placeholder="Confirm password">
+            </div>
+            
+            <div class="form-group">
+                <label for="first_name">First Name</label>
+                <input type="text" id="first_name" name="first_name" placeholder="Enter your first name">
+            </div>
+            
+            <div class="form-group">
+                <label for="last_name">Last Name</label>
+                <input type="text" id="last_name" name="last_name" placeholder="Enter your last name">
+            </div>
+            
+            <button type="submit" class="register-button" id="registerButton">
+                Register
+            </button>
+            
+            <div class="loading" id="loading">
+                Creating account...
+            </div>
+        </form>
+        
+        <div class="login-link">
+            <p>Already have an account? <a href="/login/">Login here</a></p>
+        </div>
+    </div>
+    
+    <script>
+        const API_BASE_URL = 'http://localhost:8000/api/users';
+        
+        // Wait for DOM to be fully loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            const registerForm = document.getElementById('registerForm');
+            if (registerForm) {
+                registerForm.addEventListener('submit', async (e) => {
+                    e.preventDefault();
+                    const formData = new FormData(e.target);
+                    
+                    // Basic validation
+                    const email = formData.get('email');
+                    const username = formData.get('username');
+                    const password = formData.get('password');
+                    const password2 = formData.get('password2');
+                    
+                    if (!email || !username || !password || !password2) {
+                        showMessage('Please fill in all required fields', 'error');
+                        return;
+                    }
+                    
+                    await register(formData);
+                });
+            }
+        });
+        
+        function showMessage(text, type) {
+            const messageDiv = document.getElementById('message');
+            if (messageDiv) {
+                messageDiv.textContent = text;
+                messageDiv.className = `message ${type} show`;
+                setTimeout(() => {
+                    messageDiv.classList.remove('show');
+                }, 5000);
+            }
+        }
+        
+        function showLoading(show) {
+            const loadingDiv = document.getElementById('loading');
+            const registerButton = document.getElementById('registerButton');
+            if (loadingDiv) loadingDiv.classList.toggle('show', show);
+            if (registerButton) registerButton.disabled = show;
+        }
+        
+        // Get CSRF token from cookies
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+        
+        async function register(formData) {
+            try {
+                showLoading(true);
+                
+                const data = {
+                    email: formData.get('email'),
+                    username: formData.get('username'),
+                    password: formData.get('password'),
+                    password2: formData.get('password2'),
+                    first_name: formData.get('first_name') || '',
+                    last_name: formData.get('last_name') || ''
+                };
+                
+                // Validate passwords match
+                if (data.password !== data.password2) {
+                    showMessage('Passwords do not match!', 'error');
+                    showLoading(false);
+                    return;
+                }
+                
+                // Validate password length
+                if (data.password.length < 8) {
+                    showMessage('Password must be at least 8 characters long', 'error');
+                    showLoading(false);
+                    return;
+                }
+                
+                // Get CSRF token
+                const csrftoken = getCookie('csrftoken');
+                
+                const headers = {
+                    'Content-Type': 'application/json',
+                };
+                
+                if (csrftoken) {
+                    headers['X-CSRFToken'] = csrftoken;
+                }
+                
+                const response = await fetch(`${API_BASE_URL}/register/`, {
+                    method: 'POST',
+                    headers: headers,
+                    credentials: 'include',
+                    body: JSON.stringify(data)
+                });
+                
+                let result;
+                try {
+                    result = await response.json();
+                } catch (e) {
+                    result = { detail: 'Invalid response from server' };
+                }
+                
+                if (response.ok) {
+                    showMessage('Registration successful! Redirecting to login...', 'success');
+                    setTimeout(() => {
+                        window.location.href = '/login/';
+                    }, 2000);
+                } else {
+                    // Display error messages
+                    let errorMsg = 'Registration failed. ';
+                    if (result.email) {
+                        errorMsg += Array.isArray(result.email) ? result.email[0] : result.email;
+                    } else if (result.username) {
+                        errorMsg += Array.isArray(result.username) ? result.username[0] : result.username;
+                    } else if (result.password) {
+                        errorMsg += Array.isArray(result.password) ? result.password[0] : result.password;
+                    } else if (result.non_field_errors) {
+                        errorMsg += Array.isArray(result.non_field_errors) ? result.non_field_errors[0] : result.non_field_errors;
+                    } else if (result.detail) {
+                        errorMsg = result.detail;
+                    } else {
+                        // Try to get any error message
+                        const errors = Object.values(result).flat();
+                        if (errors.length > 0) {
+                            errorMsg = errors[0];
+                        }
+                    }
+                    showMessage(errorMsg || 'Registration failed. Please try again.', 'error');
+                }
+            } catch (error) {
+                showMessage('Error connecting to server. Make sure the server is running on port 8000.', 'error');
+                console.error('Registration error:', error);
+            } finally {
+                showLoading(false);
+            }
+        }
+    </script>
+</body>
+</html>
+

@@ -1,0 +1,116 @@
+USER MODULE - COMPLETE FILE LIST
+================================
+
+This file lists all files that are part of the User Module and should be included when integrating with the main RentMe project.
+
+CORE MODULE FILES (REQUIRED)
+----------------------------
+users/
+├── __init__.py
+├── admin.py
+├── apps.py
+├── models.py
+├── serializers.py
+├── views.py
+├── urls.py
+├── tests.py
+└── migrations/
+    ├── __init__.py
+    └── 0001_initial.py
+
+TEMPLATE FILES (OPTIONAL - Only if using template views)
+--------------------------------------------------------
+templates/
+└── users/
+    ├── login.html
+    └── register.html
+
+MEDIA DIRECTORY (REQUIRED)
+--------------------------
+media/
+└── profile_pictures/
+    (directory should be created, can be empty)
+
+DOCUMENTATION FILES (REQUIRED for integration)
+----------------------------------------------
+USER_MODULE_README.md
+USER_MODULE_INTEGRATION.md
+USER_MODULE_API_DOCUMENTATION.md
+INTEGRATION_CHECKLIST.md
+USER_MODULE_STRUCTURE.md
+QUICK_START_INTEGRATION.md
+USER_MODULE_FILES_LIST.txt (this file)
+
+DEPENDENCIES (REQUIRED)
+-----------------------
+requirements.txt (or add to existing requirements.txt):
+- Django>=5.2.8
+- djangorestframework>=3.16.1
+- django-cors-headers>=4.9.0
+- Pillow>=12.0.0
+
+SETTINGS CONFIGURATION (REQUIRED in main project)
+-------------------------------------------------
+In settings.py:
+- Add 'users' to INSTALLED_APPS
+- Add 'rest_framework' to INSTALLED_APPS
+- Add 'corsheaders' to INSTALLED_APPS
+- Set AUTH_USER_MODEL = 'users.User'
+- Configure REST_FRAMEWORK settings
+- Configure MEDIA_URL and MEDIA_ROOT
+- Configure CORS settings
+- Configure SESSION settings
+
+URL CONFIGURATION (REQUIRED in main project)
+--------------------------------------------
+In main urls.py:
+- Add path('api/users/', include('users.urls'))
+- Add media URL patterns for development
+- Add template view URLs (optional)
+
+INTEGRATION STEPS
+-----------------
+1. Copy users/ directory to main project
+2. Copy templates/users/ directory (if using template views)
+3. Create media/profile_pictures/ directory
+4. Update settings.py with User Module configuration
+5. Update urls.py with User Module URLs
+6. Install dependencies (pip install -r requirements.txt)
+7. Run migrations (python manage.py makemigrations users && python manage.py migrate)
+8. Create superuser (python manage.py createsuperuser)
+9. Test API endpoints
+10. Verify integration with other modules
+
+FILES TO EXCLUDE (Not part of User Module)
+------------------------------------------
+- venv/ (virtual environment)
+- db.sqlite3 (database file)
+- __pycache__/ (Python cache)
+- *.pyc (Python compiled files)
+- Test scripts (login_test.py, test_api.py, etc.)
+- Documentation files not listed above
+- Configuration files specific to this project setup
+
+INTEGRATION CHECKLIST
+---------------------
+See INTEGRATION_CHECKLIST.md for complete checklist.
+
+QUICK START
+-----------
+See QUICK_START_INTEGRATION.md for 5-minute integration guide.
+
+FULL DOCUMENTATION
+------------------
+See USER_MODULE_INTEGRATION.md for complete integration guide.
+
+API DOCUMENTATION
+-----------------
+See USER_MODULE_API_DOCUMENTATION.md for API endpoint documentation.
+
+SUPPORT
+-------
+For issues or questions, contact Member 1 (User Module developer).
+
+Last Updated: 2024-01-01
+Module Version: 1.0.0
+
