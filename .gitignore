@@ -70,3 +70,48 @@ test_*.ps1
 # Keep migrations (required for integration)
 # users/migrations/*.py
 # !users/migrations/__init__.py
+
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+
+# dependencies
+client/node_modules
+client/.pnp
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/versions
+
+# testing
+/coverage
+
+# next.js
+client/.next/
+client/out/
+
+# production
+client/build
+
+# misc
+*.pem
+
+# debug
+client/npm-debug.log*
+client/yarn-debug.log*
+client/yarn-error.log*
+client/.pnpm-debug.log*
+
+# vercel
+client/.vercel
+.vercel
+
+# typescript
+client/*.tsbuildinfo
+client/next-env.d.ts
+
+# backend stuff
+server/venv/
+server/**/__pycache__/
+server/**/*.pyc
+server/logistics/  # Old/empty logistics directory

@@ -1,290 +1,141 @@
-# 👤 User Module - RentMe Project
+# 🏠 RentMe
 
-## Overview
-
-This is the **User Module** for the RentMe peer-to-peer rental platform. It provides complete user authentication, registration, login/logout, and profile management functionality using Django and Django REST Framework.
-
-**Developer:** Member 1  
-**Module:** User Module (Backend - Django + DB)  
-**Responsibilities:** Authentication, registration, login/logout, profile editing
+**RentMe** is a web-based platform that allows users to **rent out items** they own to others temporarily.  
+Users can register, post items, book rentals, make demo payments, and choose mock couriers.  
+Admins can manage users and listings through a dashboard.
 
 ---
 
-## 🎯 Features
+## ⚙️ Tech Stack
 
-- ✅ User Registration
-- ✅ User Login/Logout
-- ✅ User Profile Management
-- ✅ Password Change
-- ✅ Profile Picture Upload
-- ✅ Session-based Authentication
-- ✅ REST API Endpoints
-- ✅ Django Admin Integration
-- ✅ Public User Profiles
-- ✅ User Ratings Support
+- **Frontend:** React.js (Next.js)
+- **Backend:** Django (Python)
+- **Database:** PostgreSQL / SQLite (development)
 
 ---
 
-## 📦 Project Structure
+## ✨ Main Features
+
+- User registration, login & profile management
+- Add, edit, and delete item listings
+- Browse, search, and filter items
+- Book items with date selection
+- Simulated payments & courier options
+- Admin dashboard for moderation
+- User Module integration with enhanced profile fields
+
+---
+
+## 🗂 Project Structure
 
 ```
-user-module/
-├── users/                      # User Module Django app
-│   ├── models.py              # User model
-│   ├── serializers.py         # API serializers
-│   ├── views.py               # API views
-│   ├── urls.py                # URL routing
-│   ├── admin.py               # Admin configuration
-│   └── migrations/            # Database migrations
-├── rentme/                    # Django project settings
-│   ├── settings.py            # Django settings
-│   ├── urls.py                # Main URL configuration
-│   └── wsgi.py                # WSGI configuration
-├── templates/                 # HTML templates (optional)
-│   └── users/
-│       ├── login.html
-│       └── register.html
-├── media/                     # Media files (profile pictures)
-│   └── profile_pictures/
-├── requirements.txt           # Python dependencies
-└── manage.py                  # Django management script
+RentMe/
+├── client/          # React frontend (Next.js)
+├── server/          # Django backend (API + logic)
+│   ├── accounts/    # User authentication & profiles (User Module integrated)
+│   ├── logistics_demo/  # Logistics module
+│   └── rentme/      # Django project settings
+├── users/           # User Module (standalone)
+└── templates/       # HTML templates
 ```
 
 ---
 
-## 🚀 Quick Start
+## 🚀 Setup
 
-### 1. Installation
+### Backend Setup
 
 ```bash
-# Clone the repository
-git clone <repository-url>
-cd user-module
+# Navigate to server directory
+cd server
 
 # Create virtual environment
 python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
+source venv/bin/activate  # or venv\Scripts\activate on Windows
 
 # Install dependencies
 pip install -r requirements.txt
-```
-
-### 2. Database Setup
-
-```bash
-# Create migrations
-python manage.py makemigrations users
 
 # Run migrations
 python manage.py migrate
 
 # Create superuser
 python manage.py createsuperuser
-```
 
-### 3. Run Server
-
-```bash
-# Start development server
+# Start server
 python manage.py runserver
 ```
 
-### 4. Test API
+### Frontend Setup
 
 ```bash
-# Test registration
-curl -X POST http://localhost:8000/api/users/register/ \
-  -H "Content-Type: application/json" \
-  -d '{
-    "email": "test@example.com",
-    "username": "testuser",
-    "password": "testpass123",
-    "password2": "testpass123"
-  }'
+# Navigate to client directory
+cd client
+
+# Install dependencies
+npm install
+
+# Start development server
+npm start
 ```
 
 ---
 
 ## 📡 API Endpoints
 
-### Authentication
-- `POST /api/users/register/` - Register new user
-- `POST /api/users/login/` - Login user
-- `POST /api/users/logout/` - Logout user
+### User Authentication (User Module Integrated)
+- `POST /api/auth/register/` - Register new user
+- `POST /api/auth/login/` - Login user (JWT)
+- `POST /api/auth/logout/` - Logout user
+- `GET /api/auth/me/` - Get current user profile
+- `PATCH /api/auth/profile/update/` - Update user profile
+- `PUT /api/auth/password/change/` - Change password
+- `GET /api/auth/users/<id>/` - Get public user profile
 
-### Profile
-- `GET /api/users/profile/` - Get user profile
-- `PATCH /api/users/profile/update/` - Update user profile
-- `PUT /api/users/change-password/` - Change password
-- `GET /api/users/<id>/` - Get public user profile
-
-For detailed API documentation, see `USER_MODULE_API_DOCUMENTATION.md`.
-
----
-
-## 🔗 Integration with Main Project
-
-This module is designed to be integrated into the main RentMe project. See the integration documentation for details:
-
-- **Quick Start:** `QUICK_START_INTEGRATION.md`
-- **Complete Guide:** `USER_MODULE_INTEGRATION.md`
-- **Integration Checklist:** `INTEGRATION_CHECKLIST.md`
-- **API Documentation:** `USER_MODULE_API_DOCUMENTATION.md`
-
-### Key Integration Points
-
-1. **Settings Configuration:**
-   - Add `'users'` to `INSTALLED_APPS`
-   - Set `AUTH_USER_MODEL = 'users.User'`
-   - Configure REST Framework settings
-   - Configure CORS settings
-
-2. **URL Configuration:**
-   - Include `path('api/users/', include('users.urls'))` in main `urls.py`
-
-3. **Database:**
-   - Run migrations: `python manage.py makemigrations users && python manage.py migrate`
-
-4. **Other Modules:**
-   - Use `settings.AUTH_USER_MODEL` for ForeignKey relationships
-   - Example: `owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)`
+### Logistics
+- `GET /api/logistics/` - Get logistics endpoints
 
 ---
 
-## 📋 Requirements
+## 👤 User Module
 
-### Python Packages
-- Django>=5.2.8
-- djangorestframework>=3.16.1
-- django-cors-headers>=4.9.0
-- Pillow>=12.0.0
+The User Module has been integrated into the `accounts` app with:
+- Enhanced user model with profile fields (bio, address, city, country, etc.)
+- JWT authentication
+- Profile picture upload
+- User ratings support
+- Public user profiles
 
-### Django Settings
-- `AUTH_USER_MODEL = 'users.User'` (required)
-- `INSTALLED_APPS` must include 'users', 'rest_framework', 'corsheaders'
-
----
-
-## 🗄️ Database
-
-### User Model Fields
-- `id` - Primary key
-- `email` - Email address (unique, used for login)
-- `username` - Username (unique)
-- `password` - Hashed password
-- `first_name`, `last_name` - Name fields
-- `phone_number` - Phone number
-- `profile_picture` - Profile picture
-- `bio` - Biography
-- `address`, `city`, `country`, `postal_code` - Address fields
-- `rating` - User rating (0.00-5.00)
-- `total_ratings` - Total number of ratings
-- `is_verified` - Verification status
-- `date_joined` - Account creation date
-- `updated_at` - Last update timestamp
-
----
-
-## 🔒 Security
-
-- Session-based authentication
-- Password hashing (PBKDF2)
-- CSRF protection
-- Session timeout (24 hours)
-- Email format validation
-- Password strength requirements
-- File upload size limits (5MB)
-
----
-
-## 🧪 Testing
-
-### Test User Registration
-```bash
-curl -X POST http://localhost:8000/api/users/register/ \
-  -H "Content-Type: application/json" \
-  -d '{
-    "email": "test@example.com",
-    "username": "testuser",
-    "password": "testpass123",
-    "password2": "testpass123"
-  }'
-```
-
-### Test User Login
-```bash
-curl -X POST http://localhost:8000/api/users/login/ \
-  -H "Content-Type: application/json" \
-  -c cookies.txt \
-  -d '{
-    "email": "test@example.com",
-    "password": "testpass123"
-  }'
-```
-
-### Test Get Profile
-```bash
-curl -X GET http://localhost:8000/api/users/profile/ \
-  -H "Content-Type: application/json" \
-  -b cookies.txt
-```
+For detailed User Module documentation, see `USER_MODULE_README.md` and related documentation files.
 
 ---
 
 ## 📚 Documentation
 
-### Integration Documentation
-- `USER_MODULE_README.md` - Module overview
-- `QUICK_START_INTEGRATION.md` - Quick integration guide
-- `USER_MODULE_INTEGRATION.md` - Complete integration guide
-- `INTEGRATION_CHECKLIST.md` - Integration checklist
-- `USER_MODULE_API_DOCUMENTATION.md` - API documentation
-- `USER_MODULE_STRUCTURE.md` - File structure
-- `USER_MODULE_PACKAGE_SUMMARY.md` - Package summary
+- `USER_MODULE_README.md` - User Module overview
+- `USER_MODULE_INTEGRATION.md` - Integration guide
+- `AUTHENTICATION_GUIDE.md` - Authentication setup
+- `TEAM_SETUP_GUIDE.md` - Team setup instructions
 
 ---
 
-## 🆘 Support
+## 🔗 Repository
 
-### Common Issues
-See "Common Issues & Solutions" in `USER_MODULE_INTEGRATION.md`
-
-### Getting Help
-1. Check documentation files
-2. Review error messages
-3. Verify settings configuration
-4. Contact Member 1 (User Module developer)
-
----
-
-## ✅ Integration Checklist
-
-- [ ] Users app copied to main project
-- [ ] Settings configured
-- [ ] URLs configured
-- [ ] Dependencies installed
-- [ ] Migrations run
-- [ ] Superuser created
-- [ ] API tested
-- [ ] Integration with other modules tested
-
-See `INTEGRATION_CHECKLIST.md` for complete checklist.
+**GitHub:** [https://github.com/kyalo-alfred/RentMe.git](https://github.com/kyalo-alfred/RentMe.git)
 
 ---
 
 ## 📞 Contact
 
-**Developer:** Member 1 (User Module)  
-**Module Version:** 1.0.0  
-**Last Updated:** 2024-01-01
+**Project:** RentMe  
+**Repository:** kyalo-alfred/RentMe
 
 ---
 
 ## 📄 License
 
-This module is part of the RentMe project and follows the project's license.
+This project follows the project's license.
 
 ---
 
-**Ready for integration into the main RentMe project! 🚀**
-
+**Ready to use! 🚀**
