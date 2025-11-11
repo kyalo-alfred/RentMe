@@ -42,10 +42,23 @@ source venv/bin/activate
 pip install -r requirements.txt
 ```
 
-### Run Migrations (if not already done)
+### Run Migrations
+
+⚠️ **IMPORTANT - Shared Database Note:**
+
+Since we're using a **shared PostgreSQL database on Render**, the tables may already exist from another team member's setup.
+
+**First time or if you get "relation already exists" errors:**
+```bash
+python manage.py migrate --fake
+```
+
+**If database is empty (fresh setup):**
 ```bash
 python manage.py migrate
 ```
+
+💡 **Tip:** Use `--fake` to mark migrations as applied without actually running them. This syncs Django's migration tracker with the existing database tables.
 
 ### Seed Courier Data
 ```bash
@@ -146,7 +159,19 @@ python manage.py runserver 8001
 ```
 Then update frontend API URL in `client/src/lib/api.ts`
 
-**Migration errors:**
+**Migration errors (DuplicateTable / relation already exists):**
+
+This happens because tables already exist in the shared database.
+
+```bash
+# Mark migrations as applied without running them
+python manage.py migrate --fake
+
+# Check migration status
+python manage.py showmigrations
+```
+
+**Other migration errors:**
 ```bash
 python manage.py makemigrations
 python manage.py migrate
@@ -190,6 +215,68 @@ curl http://localhost:8000/api/logistics/couriers/available/
 curl -X POST http://localhost:8000/api/logistics/assignments/ \
   -H "Content-Type: application/json" \
   -d '{"booking_id":"test-123","courier_id":1}'
+```
+
+---
+
+## Common Errors & Solutions
+
+### Error: "relation 'accounts_user' does not exist"
+
+**Cause:** Database is missing the user table (common if someone ran `--fake` on an empty database)
+
+**Solution:**
+```bash
+# Run the fix script
+python fix_accounts_tables.py
+
+# Then create a test user
+python create_test_user.py
+```
+
+Or manually:
+```bash
+# Reset migration tracking and reapply
+python manage.py migrate accounts zero --fake
+python manage.py migrate accounts
+```
+
+### Error: "relation 'accounts_user_...' already exists"
+
+**Cause:** Database tables already exist (shared database or previous migration)
+
+**Solution:**
+```bash
+python manage.py migrate --fake
+```
+
+This marks migrations as complete without actually creating tables.
+
+### Error: "Unexpected token '<', "<!DOCTYPE"... is not valid JSON"
+
+**Cause:** Frontend can't connect to backend
+
+**Solution:**
+1. Make sure Django is running: `python manage.py runserver`
+2. Check `client/.env.local` exists with: `NEXT_PUBLIC_API_URL=http://localhost:8000/api`
+3. Restart Next.js dev server: Stop (Ctrl+C) then `npm run dev`
+4. Visit http://localhost:8000/api/auth/register/ - should see Django REST Framework page
+
+### Error: Port already in use
+
+**Backend (8000):**
+```bash
+# Windows
+netstat -ano | findstr :8000
+taskkill /PID <PID> /F
+
+# Or use different port
+python manage.py runserver 8001
+```
+
+**Frontend (3000):**
+```bash
+npm run dev -- -p 3001
 ```
 
 ---
