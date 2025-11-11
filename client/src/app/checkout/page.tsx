@@ -88,46 +88,46 @@ export default function CheckoutPage() {
   const selectedCourier = couriers.find(c => c.id.toString() === selectedCourierId);
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-black">
       {/* Header */}
-      <header className="border-b border-black">
+      <header className="border-b border-[#ffaa1d]">
         <div className="container mx-auto px-4 py-4">
-          <a href="/" className="text-2xl font-bold">RentMe</a>
+          <a href="/" className="text-2xl font-bold text-[#ffaa1d]">RentMe</a>
         </div>
       </header>
 
       {/* Main Content */}
       <div className="container mx-auto px-4 py-12">
         <div className="max-w-4xl mx-auto">
-          <h1 className="text-3xl font-bold mb-8">Checkout & Courier Selection</h1>
+          <h1 className="text-3xl font-bold mb-8 text-white">Checkout & Courier Selection</h1>
 
           <div className="grid md:grid-cols-2 gap-8">
             {/* Order Summary */}
-            <Card>
+            <Card className="bg-black border-2 border-[#ffaa1d]">
               <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Package className="w-5 h-5" />
+                <CardTitle className="flex items-center gap-2 text-white">
+                  <Package className="w-5 h-5 text-[#ffaa1d]" />
                   Order Summary
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
                   <div className="flex justify-between">
-                    <span className="text-gray-600">Booking ID:</span>
-                    <span className="font-semibold">{bookingId}</span>
+                    <span className="text-gray-400">Booking ID:</span>
+                    <span className="font-semibold text-white">{bookingId}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-gray-600">Item Rental:</span>
-                    <span className="font-semibold">$50.00</span>
+                    <span className="text-gray-400">Item Rental:</span>
+                    <span className="font-semibold text-white">$50.00</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-gray-600">Delivery Fee:</span>
-                    <span className="font-semibold">$5.00</span>
+                    <span className="text-gray-400">Delivery Fee:</span>
+                    <span className="font-semibold text-white">$5.00</span>
                   </div>
-                  <div className="border-t pt-4 mt-4">
+                  <div className="border-t border-[#ffaa1d] pt-4 mt-4">
                     <div className="flex justify-between text-lg font-bold">
-                      <span>Total:</span>
-                      <span>$55.00</span>
+                      <span className="text-white">Total:</span>
+                      <span className="text-[#ffaa1d]">$55.00</span>
                     </div>
                   </div>
                 </div>
@@ -135,33 +135,34 @@ export default function CheckoutPage() {
             </Card>
 
             {/* Courier Selection */}
-            <Card>
+            <Card className="bg-black border-2 border-[#ffaa1d]">
               <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Truck className="w-5 h-5" />
+                <CardTitle className="flex items-center gap-2 text-white">
+                  <Truck className="w-5 h-5 text-[#ffaa1d]" />
                   Select Courier Service
                 </CardTitle>
-                <CardDescription>
+                <CardDescription className="text-gray-400">
                   Choose your preferred delivery service
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
                 {error && (
-                  <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-md">
+                  <div className="bg-red-900/20 border border-red-500 text-red-400 px-4 py-3 rounded-md">
                     {error}
                   </div>
                 )}
 
                 <div className="space-y-2">
-                  <Label htmlFor="courier">Courier Service *</Label>
+                  <Label htmlFor="courier" className="text-white">Courier Service *</Label>
                   {isLoadingCouriers ? (
-                    <div className="text-gray-500">Loading courier options...</div>
+                    <div className="text-gray-400">Loading courier options...</div>
                   ) : (
                     <Select
                       id="courier"
                       value={selectedCourierId}
                       onChange={(e) => setSelectedCourierId(e.target.value)}
                       disabled={isLoading}
+                      className="bg-gray-900 border-[#ffaa1d] text-white"
                     >
                       {couriers.map((courier) => (
                         <option key={courier.id} value={courier.id}>
@@ -173,16 +174,16 @@ export default function CheckoutPage() {
                 </div>
 
                 {selectedCourier && (
-                  <div className="bg-gray-50 p-4 rounded-md">
-                    <p className="font-semibold text-sm mb-1">{selectedCourier.display_name}</p>
-                    <p className="text-sm text-gray-600">{selectedCourier.description}</p>
+                  <div className="bg-gray-900 p-4 rounded-md border border-[#ffaa1d]">
+                    <p className="font-semibold text-sm mb-1 text-white">{selectedCourier.display_name}</p>
+                    <p className="text-sm text-gray-400">{selectedCourier.description}</p>
                   </div>
                 )}
 
-                <div className="space-y-4 pt-4 border-t">
+                <div className="space-y-4 pt-4 border-t border-[#ffaa1d]">
                   <div className="space-y-2">
-                    <Label htmlFor="pickup" className="flex items-center gap-2">
-                      <MapPin className="w-4 h-4" />
+                    <Label htmlFor="pickup" className="flex items-center gap-2 text-white">
+                      <MapPin className="w-4 h-4 text-[#ffaa1d]" />
                       Pickup Address (Optional)
                     </Label>
                     <Input
@@ -192,12 +193,13 @@ export default function CheckoutPage() {
                       value={pickupAddress}
                       onChange={(e) => setPickupAddress(e.target.value)}
                       disabled={isLoading}
+                      className="bg-gray-900 border-[#ffaa1d] text-white placeholder:text-gray-500"
                     />
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="delivery" className="flex items-center gap-2">
-                      <MapPin className="w-4 h-4" />
+                    <Label htmlFor="delivery" className="flex items-center gap-2 text-white">
+                      <MapPin className="w-4 h-4 text-[#ffaa1d]" />
                       Delivery Address (Optional)
                     </Label>
                     <Input
@@ -207,6 +209,7 @@ export default function CheckoutPage() {
                       value={deliveryAddress}
                       onChange={(e) => setDeliveryAddress(e.target.value)}
                       disabled={isLoading}
+                      className="bg-gray-900 border-[#ffaa1d] text-white placeholder:text-gray-500"
                     />
                   </div>
                 </div>
@@ -214,7 +217,7 @@ export default function CheckoutPage() {
                 <Button
                   onClick={handleAssignCourier}
                   disabled={isLoading || !selectedCourierId || isLoadingCouriers}
-                  className="w-full"
+                  className="w-full bg-[#ffaa1d] text-black hover:bg-[#ff9500] font-bold"
                   size="lg"
                 >
                   {isLoading ? 'Assigning Courier...' : 'Confirm & Assign Courier'}

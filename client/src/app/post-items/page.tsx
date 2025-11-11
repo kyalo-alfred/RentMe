@@ -119,15 +119,15 @@ export default function PostItemPage() {
   };
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-black">
       {/* Header */}
-      <header className="border-b border-black">
+      <header className="border-b border-[#ffaa1d]">
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
-            <a href="/" className="text-2xl font-bold">RentMe</a>
+            <a href="/" className="text-2xl font-bold text-[#ffaa1d]">RentMe</a>
             <Button
               variant="outline"
-              className="border-black text-black hover:bg-black hover:text-white"
+              className="border-[#ffaa1d] text-[#ffaa1d] hover:bg-[#ffaa1d] hover:text-black"
             >
               <a href="/listings">Back to Listings</a>
             </Button>
@@ -137,10 +137,10 @@ export default function PostItemPage() {
 
       {/* Main Content */}
       <div className="container mx-auto px-4 py-8 max-w-4xl">
-        <Card className="border-2 border-black shadow-none">
-          <CardHeader className="border-b border-black">
-            <CardTitle className="text-3xl">Post an Item</CardTitle>
-            <CardDescription className="text-gray-600">
+        <Card className="border-2 border-[#ffaa1d] shadow-none bg-black">
+          <CardHeader className="border-b border-[#ffaa1d]">
+            <CardTitle className="text-3xl text-white">Post an Item</CardTitle>
+            <CardDescription className="text-gray-400">
               Fill in the details below to list your item for rent
             </CardDescription>
           </CardHeader>
@@ -149,14 +149,14 @@ export default function PostItemPage() {
             <div className="space-y-6">
               {/* Images Upload */}
               <div className="space-y-3">
-                <Label className="text-black font-medium text-lg">
-                  Photos <span className="text-red-600">*</span>
+                <Label className="text-white font-medium text-lg">
+                  Photos <span className="text-[#ffaa1d]">*</span>
                 </Label>
-                <p className="text-sm text-gray-600">Add up to 5 photos</p>
+                <p className="text-sm text-gray-400">Add up to 5 photos</p>
 
                 <div className="grid grid-cols-5 gap-4">
                   {images.map((image, index) => (
-                    <div key={index} className="relative aspect-square border-2 border-black">
+                    <div key={index} className="relative aspect-square border-2 border-[#ffaa1d]">
                       <img
                         src={image.preview}
                         alt={`Upload ${index + 1}`}
@@ -164,7 +164,7 @@ export default function PostItemPage() {
                       />
                       <button
                         onClick={() => removeImage(index)}
-                        className="absolute -top-2 -right-2 bg-black text-white rounded-full p-1 hover:bg-gray-800"
+                        className="absolute -top-2 -right-2 bg-[#ffaa1d] text-black rounded-full p-1 hover:bg-[#ff9500]"
                       >
                         <X size={16} />
                       </button>
@@ -172,7 +172,7 @@ export default function PostItemPage() {
                   ))}
 
                   {images.length < 5 && (
-                    <label className="aspect-square border-2 border-dashed border-black flex flex-col items-center justify-center cursor-pointer hover:bg-gray-50 transition-colors">
+                    <label className="aspect-square border-2 border-dashed border-[#ffaa1d] flex flex-col items-center justify-center cursor-pointer hover:bg-gray-900 transition-colors text-[#ffaa1d]">
                       <Upload size={24} className="mb-2" />
                       <span className="text-xs text-center px-2">Add Photo</span>
                       <input
@@ -189,41 +189,41 @@ export default function PostItemPage() {
 
               {/* Title */}
               <div className="space-y-2">
-                <Label className="text-black font-medium text-lg">
-                  Title <span className="text-red-600">*</span>
+                <Label className="text-white font-medium text-lg">
+                  Title <span className="text-[#ffaa1d]">*</span>
                 </Label>
                 <Input
                   placeholder="e.g., Professional DSLR Camera"
                   value={formData.title}
                   onChange={(e) => handleChange('title', e.target.value)}
-                  className="border-black text-base"
+                  className="border-[#ffaa1d] bg-gray-900 text-white placeholder:text-gray-500 text-base focus:ring-[#ffaa1d]"
                 />
               </div>
 
               {/* Description */}
               <div className="space-y-2">
-                <Label className="text-black font-medium text-lg">
-                  Description <span className="text-red-600">*</span>
+                <Label className="text-white font-medium text-lg">
+                  Description <span className="text-[#ffaa1d]">*</span>
                 </Label>
                 <textarea
                   placeholder="Describe your item, its features, and any rental terms..."
                   value={formData.description}
                   onChange={(e) => handleChange('description', e.target.value)}
                   rows={6}
-                  className="w-full px-3 py-2 border-2 border-black rounded-md focus:outline-none focus:ring-2 focus:ring-black text-base"
+                  className="w-full px-3 py-2 border-2 border-[#ffaa1d] bg-gray-900 text-white placeholder:text-gray-500 rounded-md focus:outline-none focus:ring-2 focus:ring-[#ffaa1d] text-base"
                 />
               </div>
 
               {/* Category and Condition */}
               <div className="grid md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label className="text-black font-medium text-lg">
-                    Category <span className="text-red-600">*</span>
+                  <Label className="text-white font-medium text-lg">
+                    Category <span className="text-[#ffaa1d]">*</span>
                   </Label>
                   <select
                     value={formData.category}
                     onChange={(e) => handleChange('category', e.target.value)}
-                    className="w-full px-3 py-2 border-2 border-black rounded-md focus:outline-none focus:ring-2 focus:ring-black text-base"
+                    className="w-full px-3 py-2 border-2 border-[#ffaa1d] bg-gray-900 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-[#ffaa1d] text-base"
                   >
                     <option value="">Select a category</option>
                     {categories.map(cat => (
@@ -233,13 +233,13 @@ export default function PostItemPage() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label className="text-black font-medium text-lg">
-                    Condition <span className="text-red-600">*</span>
+                  <Label className="text-white font-medium text-lg">
+                    Condition <span className="text-[#ffaa1d]">*</span>
                   </Label>
                   <select
                     value={formData.condition}
                     onChange={(e) => handleChange('condition', e.target.value)}
-                    className="w-full px-3 py-2 border-2 border-black rounded-md focus:outline-none focus:ring-2 focus:ring-black text-base"
+                    className="w-full px-3 py-2 border-2 border-[#ffaa1d] bg-gray-900 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-[#ffaa1d] text-base"
                   >
                     <option value="">Select condition</option>
                     {conditions.map(cond => (
@@ -251,19 +251,19 @@ export default function PostItemPage() {
 
               {/* Pricing */}
               <div className="space-y-3">
-                <Label className="text-black font-medium text-lg">
-                  Price <span className="text-red-600">*</span>
+                <Label className="text-white font-medium text-lg">
+                  Price <span className="text-[#ffaa1d]">*</span>
                 </Label>
                 <div className="grid md:grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <div className="relative">
-                      <DollarSign className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
+                      <DollarSign className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[#ffaa1d]" size={20} />
                       <Input
                         type="number"
                         placeholder="0.00"
                         value={formData.price}
                         onChange={(e) => handleChange('price', e.target.value)}
-                        className="pl-10 border-black text-base"
+                        className="pl-10 border-[#ffaa1d] bg-gray-900 text-white placeholder:text-gray-500 text-base focus:ring-[#ffaa1d]"
                       />
                     </div>
                   </div>
@@ -271,7 +271,7 @@ export default function PostItemPage() {
                     <select
                       value={formData.pricePeriod}
                       onChange={(e) => handleChange('pricePeriod', e.target.value)}
-                      className="w-full px-3 py-2 border-2 border-black rounded-md focus:outline-none focus:ring-2 focus:ring-black text-base"
+                      className="w-full px-3 py-2 border-2 border-[#ffaa1d] bg-gray-900 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-[#ffaa1d] text-base"
                     >
                       {pricePeriods.map(period => (
                         <option key={period.value} value={period.value}>
@@ -285,47 +285,47 @@ export default function PostItemPage() {
 
               {/* Location */}
               <div className="space-y-2">
-                <Label className="text-black font-medium text-lg">
-                  Location <span className="text-red-600">*</span>
+                <Label className="text-white font-medium text-lg">
+                  Location <span className="text-[#ffaa1d]">*</span>
                 </Label>
                 <div className="relative">
-                  <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
+                  <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[#ffaa1d]" size={20} />
                   <Input
                     placeholder="e.g., Westlands, Nairobi"
                     value={formData.location}
                     onChange={(e) => handleChange('location', e.target.value)}
-                    className="pl-10 border-black text-base"
+                    className="pl-10 border-[#ffaa1d] bg-gray-900 text-white placeholder:text-gray-500 text-base focus:ring-[#ffaa1d]"
                   />
                 </div>
               </div>
 
               {/* Availability Dates */}
               <div className="space-y-3">
-                <Label className="text-black font-medium text-lg">
+                <Label className="text-white font-medium text-lg">
                   Availability
                 </Label>
                 <div className="grid md:grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label className="text-sm text-gray-600">Available From</Label>
+                    <Label className="text-sm text-gray-400">Available From</Label>
                     <div className="relative">
-                      <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
+                      <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[#ffaa1d]" size={20} />
                       <Input
                         type="date"
                         value={formData.availableFrom}
                         onChange={(e) => handleChange('availableFrom', e.target.value)}
-                        className="pl-10 border-black"
+                        className="pl-10 border-[#ffaa1d] bg-gray-900 text-white focus:ring-[#ffaa1d]"
                       />
                     </div>
                   </div>
                   <div className="space-y-2">
-                    <Label className="text-sm text-gray-600">Available To</Label>
+                    <Label className="text-sm text-gray-400">Available To</Label>
                     <div className="relative">
-                      <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
+                      <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[#ffaa1d]" size={20} />
                       <Input
                         type="date"
                         value={formData.availableTo}
                         onChange={(e) => handleChange('availableTo', e.target.value)}
-                        className="pl-10 border-black"
+                        className="pl-10 border-[#ffaa1d] bg-gray-900 text-white focus:ring-[#ffaa1d]"
                       />
                     </div>
                   </div>
@@ -333,11 +333,11 @@ export default function PostItemPage() {
               </div>
 
               {/* Submit Button */}
-              <div className="pt-4 border-t border-black">
+              <div className="pt-4 border-t border-[#ffaa1d]">
                 <Button
                   onClick={handleSubmit}
                   disabled={isSubmitting}
-                  className="w-full bg-black text-white hover:bg-gray-800 text-lg py-6"
+                  className="w-full bg-[#ffaa1d] text-black hover:bg-[#ff9500] text-lg py-6 font-bold"
                 >
                   {isSubmitting ? 'Posting Item...' : 'Post Item'}
                 </Button>

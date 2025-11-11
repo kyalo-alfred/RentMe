@@ -29,68 +29,68 @@ export default function SignInPage() {
   };
 
   return (
-    <div className="min-h-screen bg-white flex flex-col">
+    <div className="min-h-screen bg-black flex flex-col">
       {/* Header */}
-      <header className="border-b border-black">
+      <header className="border-b border-[#ffaa1d]">
         <div className="container mx-auto px-4 py-4">
-          <a href="/" className="text-2xl font-bold">RentMe</a>
+          <a href="/" className="text-2xl font-bold text-[#ffaa1d]">RentMe</a>
         </div>
       </header>
 
       {/* Main Content */}
       <div className="flex-1 flex items-center justify-center px-4 py-12">
-        <Card className="w-full max-w-md border-2 border-black shadow-none">
+        <Card className="w-full max-w-md border-2 border-[#ffaa1d] shadow-none bg-black">
           <CardHeader className="space-y-1 text-center">
-            <CardTitle className="text-3xl font-bold">Sign In</CardTitle>
-            <CardDescription className="text-gray-600">
+            <CardTitle className="text-3xl font-bold text-white">Sign In</CardTitle>
+            <CardDescription className="text-gray-400">
               Enter your credentials to access your account
             </CardDescription>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-4">
               {error && (
-                <div className="p-3 bg-red-50 border border-red-200 rounded text-red-600 text-sm">
+                <div className="p-3 bg-red-900/20 border border-red-500 rounded text-red-400 text-sm">
                   {error}
                 </div>
               )}
 
               <div className="space-y-2">
-                <Label htmlFor="username" className="text-black font-medium">Username</Label>
+                <Label htmlFor="username" className="text-white font-medium">Username</Label>
                 <Input
                   id="username"
                   type="text"
                   placeholder="your_username"
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
-                  className="border-black focus:ring-black"
+                  className="border-[#ffaa1d] bg-gray-900 text-white placeholder:text-gray-500 focus:ring-[#ffaa1d]"
                   required
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="password" className="text-black font-medium">Password</Label>
+                <Label htmlFor="password" className="text-white font-medium">Password</Label>
                 <Input
                   id="password"
                   type="password"
                   placeholder="••••••••"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="border-black focus:ring-black"
+                  className="border-[#ffaa1d] bg-gray-900 text-white placeholder:text-gray-500 focus:ring-[#ffaa1d]"
                   required
                 />
               </div>
               <Button
                 type="submit"
                 disabled={loading}
-                className="w-full bg-black text-white hover:bg-gray-800 disabled:opacity-50"
+                className="w-full bg-[#ffaa1d] text-black hover:bg-[#ff9500] disabled:opacity-50 font-bold"
               >
                 {loading ? 'Signing In...' : 'Sign In'}
               </Button>
             </form>
 
             <div className="mt-6 text-center text-sm">
-              <p className="text-gray-600">
+              <p className="text-gray-400">
                 Don't have an account?{' '}
-                <a href="/signup" className="font-bold text-black underline hover:no-underline">
+                <a href="/signup" className="font-bold text-[#ffaa1d] underline hover:no-underline">
                   Sign Up
                 </a>
               </p>
