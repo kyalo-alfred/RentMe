@@ -530,17 +530,17 @@ export default function ListingsPage() {
   };
 
   return (
-    <div className="min-h-screen bg-black">
+    <div className="min-h-screen bg-white">
       {/* Header */}
-      <header className="border-b border-[#ffaa1d] sticky top-0 bg-black z-10">
+      <header className="border-b border-black sticky top-0 bg-white z-10">
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
-            <a href="/" className="text-2xl font-bold text-[#ffaa1d]">RentMe</a>
+            <a href="/" className="text-2xl font-bold text-black">RentMe</a>
             <div className="flex items-center gap-4">
-              <Button variant="outline" className="border-[#ffaa1d] text-[#ffaa1d] hover:bg-[#ffaa1d] hover:text-gray-900">
+              <Button variant="outline" className="border-black text-black hover:bg-black hover:text-white">
                 <a href="/post-items">Post Item</a>
               </Button>
-              <Button variant="outline" className="border-[#ffaa1d] text-[#ffaa1d] hover:bg-[#ffaa1d] hover:text-gray-900">
+              <Button variant="outline" className="border-black text-black hover:bg-black hover:text-white">
                 <a href="/profile">Profile</a>
               </Button>
             </div>
@@ -549,7 +549,7 @@ export default function ListingsPage() {
       </header>
 
       {/* Search and Filters Section */}
-      <div className="border-b border-[#ffaa1d]">
+      <div className="border-b border-black">
         <div className="container mx-auto px-4 py-6">
           <div className="flex flex-col md:flex-row gap-4">
             {/* Search Bar */}
@@ -560,12 +560,12 @@ export default function ListingsPage() {
                 placeholder="Search items or locations..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10 bg-gray-800 border-[#ffaa1d] text-white placeholder:text-gray-400 focus:ring-[#ffaa1d]"
+                className="pl-10 border-black focus:ring-black"
               />
             </div>
 
             {/* Filter Button */}
-            <Button variant="outline" className="border-[#ffaa1d] text-[#ffaa1d] hover:bg-[#ffaa1d] hover:text-gray-900">
+            <Button variant="outline" className="border-black text-black hover:bg-black hover:text-white">
               <SlidersHorizontal size={20} className="mr-2" />
               Filters
             </Button>
@@ -578,8 +578,8 @@ export default function ListingsPage() {
                 key={category}
                 onClick={() => setSelectedCategory(category)}
                 className={`px-4 py-2 rounded-full border-2 whitespace-nowrap transition-colors ${selectedCategory === category
-                  ? 'bg-[#ffaa1d] text-gray-900 border-[#ffaa1d]'
-                  : 'bg-gray-800 text-[#ffaa1d] border-[#ffaa1d] hover:bg-gray-700'
+                  ? 'bg-black text-white border-black'
+                  : 'bg-white text-black border-black hover:bg-gray-100'
                   }`}
               >
                 {category.charAt(0).toUpperCase() + category.slice(1)}
@@ -592,7 +592,7 @@ export default function ListingsPage() {
       {/* Listings Grid */}
       <div className="container mx-auto px-4 py-8">
         <div className="flex items-center justify-between mb-6">
-          <h2 className="text-2xl font-bold text-white">
+          <h2 className="text-2xl font-bold">
             {filteredListings.length} {filteredListings.length === 1 ? 'Item' : 'Items'} Available
           </h2>
         </div>
@@ -601,7 +601,7 @@ export default function ListingsPage() {
           {filteredListings.map((listing) => (
             <Card
               key={listing.id}
-              className="border-2 border-[#ffaa1d] bg-black shadow-none hover:shadow-xl hover:shadow-[#ffaa1d]/20 transition-all cursor-pointer"
+              className="border-2 border-black bg-white shadow-none hover:shadow-lg transition-shadow cursor-pointer"
             >
               <CardContent className="p-0">
                 {/* Image */}
@@ -611,44 +611,43 @@ export default function ListingsPage() {
                     alt={listing.title}
                     className="w-full h-full object-cover"
                   />
-                  <div className="absolute top-2 right-2 bg-[#ffaa1d] px-2 py-1 text-xs font-bold text-gray-900">
-                    {listing.category}
-                  </div>
+                  <div className="absolute top-2 right-2 bg-white px-2 py-1 border border-black text-xs font-bold">{listing.category}</div>
                 </div>
 
                 {/* Content */}
                 <div className="p-4">
-                  <h3 className="font-bold text-lg mb-2 line-clamp-1 text-white">{listing.title}</h3>
+                  <h3 className="font-bold text-lg mb-2 line-clamp-1">{listing.title}</h3>
 
-                  <div className="flex items-center gap-1 text-sm text-gray-400 mb-2">
+                  <div className="flex items-center gap-1 text-sm text-gray-600 mb-2">
                     <MapPin size={14} />
                     <span className="line-clamp-1">{listing.location}</span>
                   </div>
 
                   <div className="flex items-center justify-between mb-3">
                     <div className="flex items-center gap-1">
-                      <DollarSign size={18} className="font-bold text-[#ffaa1d]" />
-                      <span className="text-xl font-bold text-[#ffaa1d]">{listing.price}</span>
-                      <span className="text-sm text-gray-400">/{listing.period}</span>
+                      <DollarSign size={18} className="font-bold" />
+                      <span className="text-xl font-bold">{listing.price}</span>
+                      <span className="text-sm text-gray-600">/{listing.period}</span>
                     </div>
                     <div className="flex items-center gap-1">
-                      <span className="text-sm text-[#ffaa1d]">★</span>
-                      <span className="text-sm font-bold text-white">{listing.rating}</span>
+                      <span className="text-sm">★</span>
+                      <span className="text-sm font-bold">{listing.rating}</span>
                     </div>
                   </div>
 
-                  <div className="text-sm text-gray-400 mb-3">
-                    Owner: <span className="font-medium text-white">{listing.owner}</span>
+                  <div className="text-sm text-gray-600 mb-3">
+                    Owner: <span className="font-medium text-black">{listing.owner}</span>
                   </div>
                   <div className="grid grid-cols-2 gap-2">
                     <Button
-                      className="w-full bg-[#ffaa1d] text-gray-900 hover:bg-[#ff9500] font-bold"
+                      variant="outline"
+                      className="w-full border-black text-black hover:bg-black hover:text-white"
                       onClick={() => {
                         setSelectedListing(listing);
                         setIsModalOpen(true);
                       }}
                     >
-                      View Details
+                      View
                     </Button>
                     <Button
                       className="w-full bg-black text-white hover:bg-gray-800"
@@ -668,22 +667,22 @@ export default function ListingsPage() {
 
         {filteredListings.length === 0 && (
           <div className="text-center py-20">
-            <h3 className="text-2xl font-bold mb-2 text-white">No items found</h3>
-            <p className="text-gray-400">Try adjusting your search or filters</p>
+            <h3 className="text-2xl font-bold mb-2">No items found</h3>
+            <p className="text-gray-600">Try adjusting your search or filters</p>
           </div>
         )}
       </div>
 
       {/* Item Details Modal */}
       {isModalOpen && selectedListing && (
-        <div className="fixed inset-0 backdrop-blur-md bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-black border-2 border-[#ffaa1d] max-w-2xl w-full max-h-[90vh] flex flex-col">
+        <div className="fixed inset-0 bg-black/30 flex items-center justify-center z-50 p-4">
+          <div className="bg-white border-2 border-black max-w-2xl w-full max-h-[90vh] flex flex-col">
             {/* Modal Header */}
-            <div className="bg-black border-b-2 border-[#ffaa1d] p-4 flex items-center justify-between flex-shrink-0">
-              <h2 className="text-2xl font-bold text-[#ffaa1d]">Item Details</h2>
+            <div className="bg-white border-b-2 border-black p-4 flex items-center justify-between flex-shrink-0">
+              <h2 className="text-2xl font-bold text-black">Item Details</h2>
               <button
                 onClick={() => setIsModalOpen(false)}
-                className="p-2 hover:bg-gray-700 rounded-full transition-colors text-[#ffaa1d]"
+                className="p-2 hover:bg-gray-100 rounded-full transition-colors text-black"
               >
                 <X size={24} />
               </button>
@@ -698,68 +697,68 @@ export default function ListingsPage() {
                   alt={selectedListing.title}
                   className="w-full h-full object-cover"
                 />
-                <div className="absolute top-2 right-2 bg-[#ffaa1d] px-3 py-1 text-sm font-bold text-gray-900">
+                <div className="absolute top-2 right-2 bg-white px-3 py-1 text-sm font-bold border border-black">
                   {selectedListing.category}
                 </div>
               </div>
 
               {/* Title and Rating */}
               <div className="flex items-start justify-between mb-4">
-                <h3 className="text-2xl font-bold flex-1 text-white">{selectedListing.title}</h3>
+                <h3 className="text-2xl font-bold flex-1 text-black">{selectedListing.title}</h3>
                 <div className="flex items-center gap-1 ml-4">
-                  <span className="text-lg text-[#ffaa1d]">★</span>
-                  <span className="text-lg font-bold text-white">{selectedListing.rating}</span>
+                  <span className="text-lg">★</span>
+                  <span className="text-lg font-bold text-black">{selectedListing.rating}</span>
                 </div>
               </div>
 
               {/* Price */}
-              <div className="mb-6 p-4 border-2 border-[#ffaa1d] bg-gray-900 rounded-lg">
+              <div className="mb-6 p-4 border-2 border-black bg-white rounded-lg">
                 <div className="flex items-center gap-2">
-                  <DollarSign size={24} className="text-[#ffaa1d]" />
-                  <span className="text-3xl font-bold text-[#ffaa1d]">{selectedListing.price} KES</span>
-                  <span className="text-xl text-gray-400">/ {selectedListing.period}</span>
+                  <DollarSign size={24} />
+                  <span className="text-3xl font-bold">{selectedListing.price} KES</span>
+                  <span className="text-xl text-gray-600">/ {selectedListing.period}</span>
                 </div>
               </div>
 
               {/* Location */}
               <div className="mb-6">
-                <div className="flex items-center gap-2 text-gray-300">
-                  <MapPin size={20} className="text-[#ffaa1d]" />
-                  <span className="text-lg">{selectedListing.location}</span>
+                <div className="flex items-center gap-2 text-gray-700">
+                  <MapPin size={20} />
+                  <span className="text-lg text-black">{selectedListing.location}</span>
                 </div>
               </div>
 
               {/* Description */}
               <div className="mb-6">
-                <h4 className="font-bold text-lg mb-2 text-[#ffaa1d]">Description</h4>
-                <p className="text-gray-300">
+                <h4 className="font-bold text-lg mb-2 text-black">Description</h4>
+                <p className="text-gray-700">
                   {selectedListing.description || 'No description available for this item.'}
                 </p>
               </div>
 
               {/* Owner Information */}
-              <div className="border-2 border-[#ffaa1d] p-4 mb-6 rounded-lg bg-gray-900">
-                <h4 className="font-bold text-lg mb-4 text-[#ffaa1d]">Contact Owner</h4>
+              <div className="border-2 border-black p-4 mb-6 rounded-lg bg-white">
+                <h4 className="font-bold text-lg mb-4 text-black">Contact Owner</h4>
 
                 <div className="space-y-3">
                   {/* Owner Name */}
                   <div className="flex items-center gap-3">
-                    <User size={20} className="text-[#ffaa1d]" />
+                    <User size={20} />
                     <div>
-                      <p className="text-sm text-gray-400">Owner</p>
-                      <p className="font-bold text-white">{selectedListing.owner}</p>
+                      <p className="text-sm text-gray-600">Owner</p>
+                      <p className="font-bold text-black">{selectedListing.owner}</p>
                     </div>
                   </div>
 
                   {/* Phone */}
                   {selectedListing.phone && (
                     <div className="flex items-center gap-3">
-                      <Phone size={20} className="text-[#ffaa1d]" />
+                      <Phone size={20} />
                       <div>
-                        <p className="text-sm text-gray-400">Phone</p>
+                        <p className="text-sm text-gray-600">Phone</p>
                         <a
                           href={`tel:${selectedListing.phone}`}
-                          className="font-bold text-white hover:text-[#ffaa1d] hover:underline transition-colors"
+                          className="font-bold text-black hover:text-black hover:underline transition-colors"
                         >
                           {selectedListing.phone}
                         </a>
@@ -770,12 +769,12 @@ export default function ListingsPage() {
                   {/* Email */}
                   {selectedListing.email && (
                     <div className="flex items-center gap-3">
-                      <Mail size={20} className="text-[#ffaa1d]" />
+                      <Mail size={20} />
                       <div>
-                        <p className="text-sm text-gray-400">Email</p>
+                        <p className="text-sm text-gray-600">Email</p>
                         <a
                           href={`mailto:${selectedListing.email}`}
-                          className="font-bold text-white hover:text-[#ffaa1d] hover:underline transition-colors"
+                          className="font-bold text-black hover:text-black hover:underline transition-colors"
                         >
                           {selectedListing.email}
                         </a>
@@ -788,7 +787,8 @@ export default function ListingsPage() {
               {/* Action Buttons */}
               <div className="flex gap-4">
                 <Button
-                  className="flex-1 bg-[#ffaa1d] text-gray-900 hover:bg-[#ff9500] font-bold"
+                  variant="outline"
+                  className="flex-1 border-black text-black hover:bg-black hover:text-white"
                   onClick={() => {
                     if (selectedListing.phone) {
                       window.location.href = `tel:${selectedListing.phone}`;
@@ -799,7 +799,8 @@ export default function ListingsPage() {
                   Call Owner
                 </Button>
                 <Button
-                  className="flex-1 bg-[#ffaa1d] text-gray-900 hover:bg-[#ff9500] font-bold"
+                  variant="outline"
+                  className="flex-1 border-black text-black hover:bg-black hover:text-white"
                   onClick={() => {
                     if (selectedListing.email) {
                       window.location.href = `mailto:${selectedListing.email}`;
