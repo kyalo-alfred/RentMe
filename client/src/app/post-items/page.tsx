@@ -124,7 +124,7 @@ export default function PostItemPage() {
       <header className="border-b border-[#ffaa1d]">
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
-            <a href="/" className="text-2xl font-bold text-[#ffaa1d]">RentMe</a>
+            <a href="/listings" className="text-2xl font-bold text-[#ffaa1d]">RentMe</a>
             <Button
               variant="outline"
               className="border-[#ffaa1d] text-[#ffaa1d] hover:bg-[#ffaa1d] hover:text-black"

@@ -203,7 +203,7 @@ export default function AccountPage() {
       <header className="border-b border-black">
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
-            <a href="/" className="text-2xl font-bold">RentMe</a>
+            <a href="/listings" className="text-2xl font-bold">RentMe</a>
             <div className="flex items-center gap-4">
               <Button variant="outline" className="border-black text-black hover:bg-black hover:text-white">
                 <a href="/listings">Browse Items</a>
