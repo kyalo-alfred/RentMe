@@ -12,6 +12,16 @@ export default function ListingsPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedListing, setSelectedListing] = useState<any>(null);
 
+  // Rent modal state
+  const [rentOpenForId, setRentOpenForId] = useState<number | null>(null);
+  const [startDate, setStartDate] = useState<string>('');
+  const [endDate, setEndDate] = useState<string>('');
+  const [rentLoading, setRentLoading] = useState<boolean>(false);
+  const [rentError, setRentError] = useState<string>('');
+  const [rentSuccess, setRentSuccess] = useState<string>('');
+
+  const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api';
+
   // Mock data - replace with API call to Django backend
   const listings = [
     {
@@ -449,6 +459,76 @@ export default function ListingsPage() {
     return matchesSearch && matchesCategory;
   });
 
+  const resetRentState = () => {
+    setStartDate('');
+    setEndDate('');
+    setRentError('');
+    setRentSuccess('');
+    setRentLoading(false);
+  };
+
+  const checkAvailability = async (listingId: number) => {
+    const params = new URLSearchParams({
+      listing_id: String(listingId),
+      start_date: startDate,
+      end_date: endDate,
+    });
+    const res = await fetch(`${API_BASE_URL}/bookings/availability/check/?${params.toString()}`);
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.detail || 'Failed to check availability');
+    }
+    return res.json();
+  };
+
+  const createBooking = async (listingId: number) => {
+    const token = typeof window !== 'undefined' ? localStorage.getItem('access_token') : null;
+    if (!token) {
+      throw new Error('Please sign in to rent an item');
+    }
+    const res = await fetch(`${API_BASE_URL}/bookings/bookings/`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+      body: JSON.stringify({
+        listing_id: listingId,
+        start_date: startDate,
+        end_date: endDate,
+        notes: '',
+      }),
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      // DRF validation error shape
+      const msg = err?.dates || err?.detail || Object.values(err)?.[0] || 'Failed to create booking';
+      throw new Error(Array.isArray(msg) ? msg[0] : String(msg));
+    }
+    return res.json();
+  };
+
+  const handleRent = async (listingId: number) => {
+    setRentLoading(true);
+    setRentError('');
+    setRentSuccess('');
+    try {
+      if (!startDate || !endDate) {
+        throw new Error('Please select start and end dates');
+      }
+      const avail = await checkAvailability(listingId);
+      if (!avail?.available) {
+        throw new Error('Selected dates are not available');
+      }
+      await createBooking(listingId);
+      setRentSuccess('Booking created successfully');
+    } catch (e: any) {
+      setRentError(e.message || 'Failed to rent item');
+    } finally {
+      setRentLoading(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-black">
       {/* Header */}
@@ -560,17 +640,26 @@ export default function ListingsPage() {
                   <div className="text-sm text-gray-400 mb-3">
                     Owner: <span className="font-medium text-white">{listing.owner}</span>
                   </div>
-
-                  <Button
-                    className="w-full bg-[#ffaa1d] text-gray-900 hover:bg-[#ff9500] font-bold"
-                    onClick={() => {
-                      setSelectedListing(listing);
-                      setIsModalOpen(true);
-                    }}
-                  >
-                    View Details
-                  </Button>
-
+                  <div className="grid grid-cols-2 gap-2">
+                    <Button
+                      className="w-full bg-[#ffaa1d] text-gray-900 hover:bg-[#ff9500] font-bold"
+                      onClick={() => {
+                        setSelectedListing(listing);
+                        setIsModalOpen(true);
+                      }}
+                    >
+                      View Details
+                    </Button>
+                    <Button
+                      className="w-full bg-black text-white hover:bg-gray-800"
+                      onClick={() => {
+                        setRentOpenForId(listing.id);
+                        resetRentState();
+                      }}
+                    >
+                      Rent
+                    </Button>
+                  </div>
                 </div>
               </CardContent>
             </Card>
@@ -721,6 +810,64 @@ export default function ListingsPage() {
                   Send Email
                 </Button>
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+      {/* Rent Modal (simple inline overlay) */}
+      {rentOpenForId !== null && (
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+          <div className="bg-white border-2 border-black w-full max-w-md p-5">
+            <h3 className="text-xl font-bold mb-1">Rent Item</h3>
+            <p className="text-sm text-gray-600 mb-4">Select dates to rent this item.</p>
+
+            {rentError && (
+              <div className="mb-3 p-2 border border-red-300 bg-red-50 text-red-700 text-sm">
+                {rentError}
+              </div>
+            )}
+            {rentSuccess && (
+              <div className="mb-3 p-2 border border-green-300 bg-green-50 text-green-700 text-sm">
+                {rentSuccess}
+              </div>
+            )}
+
+            <div className="grid grid-cols-1 gap-3 mb-4">
+              <div>
+                <label className="block text-sm font-medium mb-1">Start date</label>
+                <Input
+                  type="date"
+                  value={startDate}
+                  onChange={(e) => setStartDate(e.target.value)}
+                  className="border-black"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">End date</label>
+                <Input
+                  type="date"
+                  value={endDate}
+                  onChange={(e) => setEndDate(e.target.value)}
+                  className="border-black"
+                />
+              </div>
+            </div>
+
+            <div className="flex gap-2">
+              <Button
+                className="bg-black text-white hover:bg-gray-800"
+                disabled={rentLoading}
+                onClick={() => handleRent(rentOpenForId!)}
+              >
+                {rentLoading ? 'Processing...' : 'Confirm Rent'}
+              </Button>
+              <Button
+                variant="outline"
+                className="border-black text-black hover:bg-black hover:text-white"
+                onClick={() => setRentOpenForId(null)}
+              >
+                Cancel
+              </Button>
             </div>
           </div>
         </div>

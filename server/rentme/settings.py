@@ -48,6 +48,7 @@ INSTALLED_APPS = [
     'accounts',
     'logistics_demo',
     'bookings',
+	'listings',
 ]
 
 MIDDLEWARE = [
