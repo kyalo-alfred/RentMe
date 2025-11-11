@@ -115,11 +115,47 @@ export default function Home() {
           </Button>
         </div>
       </section>
+<<<<<<< Updated upstream
       <footer className="border-t border-black py-8">
         <div className="container mx-auto px-4 text-center text-gray-600">
+=======
+  
+      <footer className="bg-card-dark text-card-foreground border-t border-border py-12">
+        <div className="container mx-auto px-4 grid md:grid-cols-3 gap-8">
+          {/* Branding */}
+          <div className="space-y-4">
+            <h2 className="text-2xl font-bold text-primary">RentMe</h2>
+            <p className="text-muted-foreground">Rent what you need, share what you own.</p>
+          </div>
+          {/* Quick Links */}
+          <div className="space-y-2">
+            <h3 className="text-lg font-semibold text-primary">Quick Links</h3>
+            <ul className="space-y-1">
+              {['Home','About','Listings','Sign Up','Sign In'].map(link=>(
+                <li key={link}>
+                  <Link href={`/${link.toLowerCase().replace(' ', '')}`} className="hover:text-accent hover:underline transition-all">{link}</Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+          {/* Contact / Social */}
+          <div className="space-y-2">
+            <h3 className="text-lg font-semibold text-primary">Contact</h3>
+            <p className="text-muted-foreground">Email: support@rentme.com</p>
+            <p className="text-muted-foreground">Phone: +254 700 000 000</p>
+            <div className="flex gap-4 mt-2">
+              {['Twitter','Facebook','Instagram'].map(social=>(
+                <a key={social} href="#" className="hover:text-accent hover:underline transition-all">{social}</a>
+              ))}
+              </div>
+          </div>
+        </div>
+        <div className="mt-12 border-t border-border pt-6 text-center text-muted-foreground text-sm">
+>>>>>>> Stashed changes
           <p>&copy; 2025 RentMe. All rights reserved.</p>
         </div>
       </footer>
+
     </div>
   );
 }
