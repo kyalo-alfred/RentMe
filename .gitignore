@@ -115,3 +115,4 @@ server/venv/
 server/**/__pycache__/
 server/**/*.pyc
 server/logistics/  # Old/empty logistics directory
+server

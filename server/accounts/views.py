@@ -27,6 +27,7 @@ class RegisterView(generics.CreateAPIView):
         serializer.is_valid(raise_exception=True)
         user = serializer.save()
 
+        #TODO::Why do it like this?
         # Generate JWT tokens for the new user
         refresh = RefreshToken.for_user(user)
 
