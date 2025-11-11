@@ -4,101 +4,439 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { Search, SlidersHorizontal, MapPin, Calendar, DollarSign } from 'lucide-react';
+import { Search, SlidersHorizontal, MapPin, Calendar, DollarSign, X, Phone, Mail, User } from 'lucide-react';
 
 export default function ListingsPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedListing, setSelectedListing] = useState<any>(null);
 
   // Mock data - replace with API call to Django backend
   const listings = [
     {
       id: 1,
       title: 'Professional DSLR Camera',
-      price: 50,
+      price: 5000, // KES
       period: 'day',
       location: 'Nairobi, Kenya',
       image: 'https://images.unsplash.com/photo-1502920917128-1aa500764cbd?w=400&h=300&fit=crop',
       category: 'Electronics',
-      owner: 'John Doe',
-      rating: 4.8
+      owner: 'Kevin Mwangi',
+      rating: 4.8,
+      phone: '+254 712 345 678',
+      email: 'kevin.mwangi@email.com',
+      description: 'Professional Canon DSLR camera with multiple lenses. Perfect for events, photoshoots, and professional photography. Comes with camera bag and accessories.'
     },
     {
       id: 2,
       title: 'Power Drill Set',
-      price: 15,
+      price: 1500, // KES
       period: 'day',
       location: 'Westlands, Nairobi',
       image: 'https://images.unsplash.com/photo-1504148455328-c376907d081c?w=400&h=300&fit=crop',
       category: 'Tools',
-      owner: 'Jane Smith',
-      rating: 5.0
+      owner: 'Grace Wanjiku',
+      rating: 5.0,
+      phone: '+254 723 456 789',
+      email: 'grace.wanjiku@email.com',
+      description: 'Complete power drill set with various drill bits and accessories. Ideal for home improvement and DIY projects.'
     },
     {
       id: 3,
       title: 'Camping Tent (4 Person)',
-      price: 30,
+      price: 3000, // KES
       period: 'day',
       location: 'Karen, Nairobi',
       image: 'https://images.unsplash.com/photo-1478131143081-80f7f84ca84d?w=400&h=300&fit=crop',
       category: 'Outdoor',
-      owner: 'Mike Johnson',
+      owner: 'Brian Otieno',
       rating: 4.5
     },
     {
       id: 4,
       title: 'PlayStation 5',
-      price: 25,
+      price: 2500, // KES
       period: 'day',
       location: 'CBD, Nairobi',
       image: 'https://images.unsplash.com/photo-1606813907291-d86efa9b94db?w=400&h=300&fit=crop',
       category: 'Electronics',
-      owner: 'Sarah Wilson',
+      owner: 'Faith Njeri',
       rating: 4.9
     },
     {
       id: 5,
       title: 'Lawn Mower',
-      price: 20,
+      price: 2000, // KES
       period: 'day',
       location: 'Kilimani, Nairobi',
       image: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&h=300&fit=crop',
       category: 'Tools',
-      owner: 'David Brown',
+      owner: 'Samuel Karanja',
       rating: 4.7
     },
     {
       id: 6,
       title: 'Mountain Bike',
-      price: 35,
+      price: 3500, // KES
       period: 'day',
       location: 'Parklands, Nairobi',
       image: 'https://images.unsplash.com/photo-1576435728678-68d0fbf94e91?w=400&h=300&fit=crop',
       category: 'Sports',
-      owner: 'Emma Davis',
+      owner: 'Aisha Mohamed',
       rating: 4.6
     },
     {
       id: 7,
       title: 'Projector & Screen',
-      price: 40,
+      price: 4000, // KES
       period: 'day',
       location: 'Upperhill, Nairobi',
       image: 'https://images.unsplash.com/photo-1560169897-fc0cdbdfa4d5?w=400&h=300&fit=crop',
       category: 'Electronics',
-      owner: 'Chris Lee',
+      owner: 'Dennis Mworia',
       rating: 4.8
     },
     {
       id: 8,
       title: 'Party Tent & Chairs',
-      price: 100,
+      price: 10000, // KES
       period: 'day',
       location: 'Lavington, Nairobi',
       image: 'https://images.unsplash.com/photo-1519225421980-715cb0215aed?w=400&h=300&fit=crop',
       category: 'Events',
-      owner: 'Lisa Anderson',
+      owner: 'Ruth Wambui',
       rating: 5.0
+    },
+    {
+      id: 9,
+      title: 'DJ Equipment Set',
+      price: 8000, // KES
+      period: 'day',
+      location: 'South B, Nairobi',
+      image: 'https://images.unsplash.com/photo-1571330735066-03aaa9429d89?w=400&h=300&fit=crop',
+      category: 'Electronics',
+      owner: 'Mike Odhiambo',
+      rating: 4.9
+    },
+    {
+      id: 10,
+      title: 'Generator 5KVA',
+      price: 5000, // KES
+      period: 'day',
+      location: 'Industrial Area, Nairobi',
+      image: 'https://images.unsplash.com/photo-1615495001865-e4e7222015f2?w=400&h=300&fit=crop',
+      category: 'Tools',
+      owner: 'John Mutua',
+      rating: 4.6
+    },
+    {
+      id: 11,
+      title: 'Wedding Dress',
+      price: 7000, // KES
+      period: 'day',
+      location: 'Ngong Road, Nairobi',
+      image: 'https://images.unsplash.com/photo-1594552072238-ae9ac3a3f34b?w=400&h=300&fit=crop',
+      category: 'Events',
+      owner: 'Mary Akinyi',
+      rating: 5.0
+    },
+    {
+      id: 12,
+      title: 'Gaming Laptop',
+      price: 3500, // KES
+      period: 'day',
+      location: 'Gigiri, Nairobi',
+      image: 'https://images.unsplash.com/photo-1603302576837-37561b2e2302?w=400&h=300&fit=crop',
+      category: 'Electronics',
+      owner: 'David Kamau',
+      rating: 4.8
+    },
+    {
+      id: 13,
+      title: 'Kayak (Single)',
+      price: 2500, // KES
+      period: 'day',
+      location: 'Runda, Nairobi',
+      image: 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=400&h=300&fit=crop',
+      category: 'Outdoor',
+      owner: 'Jane Wangui',
+      rating: 4.7
+    },
+    {
+      id: 14,
+      title: 'Ladder Extension 20ft',
+      price: 1200, // KES
+      period: 'day',
+      location: 'Embakasi, Nairobi',
+      image: 'https://images.unsplash.com/photo-1609779883228-259e3e1a0aac?w=400&h=300&fit=crop',
+      category: 'Tools',
+      owner: 'Peter Njenga',
+      rating: 4.5
+    },
+    {
+      id: 15,
+      title: 'Pressure Washer',
+      price: 2000, // KES
+      period: 'day',
+      location: 'Thika Road, Nairobi',
+      image: 'https://images.unsplash.com/photo-1628177142898-93e36e4e3a50?w=400&h=300&fit=crop',
+      category: 'Tools',
+      owner: 'James Kimani',
+      rating: 4.8
+    },
+    {
+      id: 16,
+      title: 'Road Bike',
+      price: 3000, // KES
+      period: 'day',
+      location: 'Muthaiga, Nairobi',
+      image: 'https://images.unsplash.com/photo-1485965120184-e220f721d03e?w=400&h=300&fit=crop',
+      category: 'Sports',
+      owner: 'Lucy Chebet',
+      rating: 4.9
+    },
+    {
+      id: 17,
+      title: 'VR Headset',
+      price: 4000, // KES
+      period: 'day',
+      location: 'Westlands, Nairobi',
+      image: 'https://images.unsplash.com/photo-1622979135225-d2ba269cf1ac?w=400&h=300&fit=crop',
+      category: 'Electronics',
+      owner: 'Steve Omondi',
+      rating: 4.7
+    },
+    {
+      id: 18,
+      title: 'Camping Stove & Cookware',
+      price: 1500, // KES
+      period: 'day',
+      location: 'Langata, Nairobi',
+      image: 'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=400&h=300&fit=crop',
+      category: 'Outdoor',
+      owner: 'Alice Nyambura',
+      rating: 4.6
+    },
+    {
+      id: 19,
+      title: 'Folding Tables (5pc)',
+      price: 3000, // KES
+      period: 'day',
+      location: 'Donholm, Nairobi',
+      image: 'https://images.unsplash.com/photo-1540932239986-30128078f3c5?w=400&h=300&fit=crop',
+      category: 'Events',
+      owner: 'George Kipchoge',
+      rating: 4.4
+    },
+    {
+      id: 20,
+      title: 'Electric Scooter',
+      price: 2000, // KES
+      period: 'day',
+      location: 'Kileleshwa, Nairobi',
+      image: 'https://images.unsplash.com/photo-1559311859-c6ef2031d4cd?w=400&h=300&fit=crop',
+      category: 'Sports',
+      owner: 'Rose Wafula',
+      rating: 4.8
+    },
+    {
+      id: 21,
+      title: 'Professional Drone',
+      price: 6000, // KES
+      period: 'day',
+      location: 'Spring Valley, Nairobi',
+      image: 'https://images.unsplash.com/photo-1473968512647-3e447244af8f?w=400&h=300&fit=crop',
+      category: 'Electronics',
+      owner: 'Tom Muthomi',
+      rating: 5.0
+    },
+    {
+      id: 22,
+      title: 'Inflatable Bounce House',
+      price: 15000, // KES
+      period: 'day',
+      location: 'Kitisuru, Nairobi',
+      image: 'https://images.unsplash.com/photo-1583422409516-2895a77efded?w=400&h=300&fit=crop',
+      category: 'Events',
+      owner: 'Nancy Wairimu',
+      rating: 4.9
+    },
+    {
+      id: 23,
+      title: 'Carpet Cleaner Machine',
+      price: 2500, // KES
+      period: 'day',
+      location: 'South C, Nairobi',
+      image: 'https://images.unsplash.com/photo-1585421514738-01798e348b17?w=400&h=300&fit=crop',
+      category: 'Tools',
+      owner: 'Patrick Onyango',
+      rating: 4.5
+    },
+    {
+      id: 24,
+      title: 'Telescope',
+      price: 3500, // KES
+      period: 'day',
+      location: 'Ridgeways, Nairobi',
+      image: 'https://images.unsplash.com/photo-1614642264762-d0a3b8bf3700?w=400&h=300&fit=crop',
+      category: 'Outdoor',
+      owner: 'Vincent Kiprop',
+      rating: 4.7
+    },
+    {
+      id: 25,
+      title: 'Sewing Machine Industrial',
+      price: 2000, // KES
+      period: 'day',
+      location: 'Eastleigh, Nairobi',
+      image: 'https://images.unsplash.com/photo-1597081916528-2ee6d87b1f4e?w=400&h=300&fit=crop',
+      category: 'Tools',
+      owner: 'Susan Nduta',
+      rating: 4.6
+    },
+    {
+      id: 26,
+      title: 'Sound System PA',
+      price: 9000, // KES
+      period: 'day',
+      location: 'Syokimau, Nairobi',
+      image: 'https://images.unsplash.com/photo-1563330232-57114bb0823c?w=400&h=300&fit=crop',
+      category: 'Electronics',
+      owner: 'Joseph Gitau',
+      rating: 4.8
+    },
+    {
+      id: 27,
+      title: 'Wheelchair',
+      price: 1000, // KES
+      period: 'day',
+      location: 'Buruburu, Nairobi',
+      image: 'https://images.unsplash.com/photo-1569315437190-c715e1aa0d54?w=400&h=300&fit=crop',
+      category: 'Tools',
+      owner: 'Margaret Juma',
+      rating: 5.0
+    },
+    {
+      id: 28,
+      title: 'Stand Up Paddleboard',
+      price: 3500, // KES
+      period: 'day',
+      location: 'Rosslyn, Nairobi',
+      image: 'https://images.unsplash.com/photo-1507035895480-2b3156c31fc8?w=400&h=300&fit=crop',
+      category: 'Sports',
+      owner: 'Angela Mwende',
+      rating: 4.6
+    },
+    {
+      id: 29,
+      title: 'Party Lights LED',
+      price: 4500, // KES
+      period: 'day',
+      location: 'Kilimani, Nairobi',
+      image: 'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=400&h=300&fit=crop',
+      category: 'Events',
+      owner: 'Charles Ochieng',
+      rating: 4.7
+    },
+    {
+      id: 30,
+      title: 'Electric Guitar & Amp',
+      price: 3000, // KES
+      period: 'day',
+      location: 'Ngara, Nairobi',
+      image: 'https://images.unsplash.com/photo-1511735643442-503bb3bd348a?w=400&h=300&fit=crop',
+      category: 'Electronics',
+      owner: 'Henry Ndungu',
+      rating: 4.9
+    },
+    {
+      id: 31,
+      title: 'Barbecue Grill Large',
+      price: 2500, // KES
+      period: 'day',
+      location: 'Rongai, Nairobi',
+      image: 'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=400&h=300&fit=crop',
+      category: 'Outdoor',
+      owner: 'Philip Wekesa',
+      rating: 4.5
+    },
+    {
+      id: 32,
+      title: 'Baby Stroller Premium',
+      price: 1500, // KES
+      period: 'day',
+      location: 'Ruaka, Nairobi',
+      image: 'https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=400&h=300&fit=crop',
+      category: 'Tools',
+      owner: 'Christine Auma',
+      rating: 4.8
+    },
+    {
+      id: 33,
+      title: 'Treadmill',
+      price: 2500, // KES
+      period: 'day',
+      location: 'Kikuyu, Nairobi',
+      image: 'https://images.unsplash.com/photo-1538805060514-97d9cc17730c?w=400&h=300&fit=crop',
+      category: 'Sports',
+      owner: 'Eric Njoroge',
+      rating: 4.7
+    },
+    {
+      id: 34,
+      title: 'Photo Booth Kit',
+      price: 8000, // KES
+      period: 'day',
+      location: 'Kasarani, Nairobi',
+      image: 'https://images.unsplash.com/photo-1511285560929-80b456fea0bc?w=400&h=300&fit=crop',
+      category: 'Events',
+      owner: 'Sarah Wangari',
+      rating: 5.0
+    },
+    {
+      id: 35,
+      title: 'Chainsaw',
+      price: 3000, // KES
+      period: 'day',
+      location: 'Ngong, Nairobi',
+      image: 'https://images.unsplash.com/photo-1606144042614-b2417e99c4e3?w=400&h=300&fit=crop',
+      category: 'Tools',
+      owner: 'William Bett',
+      rating: 4.6
+    },
+    {
+      id: 36,
+      title: 'GoPro Action Camera',
+      price: 4000, // KES
+      period: 'day',
+      location: 'Yaya Centre, Nairobi',
+      image: 'https://images.unsplash.com/photo-1585508889406-bd8301f1b7f6?w=400&h=300&fit=crop',
+      category: 'Electronics',
+      owner: 'Caroline Moraa',
+      rating: 4.9
+    },
+    {
+      id: 37,
+      title: 'Fishing Rod & Tackle',
+      price: 1800, // KES
+      period: 'day',
+      location: 'Limuru, Nairobi',
+      image: 'https://images.unsplash.com/photo-1545450660-1c0d6d38b21c?w=400&h=300&fit=crop',
+      category: 'Outdoor',
+      owner: 'Daniel Korir',
+      rating: 4.4
+    },
+    {
+      id: 38,
+      title: 'Fog Machine',
+      price: 5000, // KES
+      period: 'day',
+      location: 'Parklands, Nairobi',
+      image: 'https://images.unsplash.com/photo-1510511459019-5dda7724fd87?w=400&h=300&fit=crop',
+      category: 'Events',
+      owner: 'Francis Maina',
+      rating: 4.8
     }
   ];
 
@@ -112,17 +450,17 @@ export default function ListingsPage() {
   });
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-black">
       {/* Header */}
-      <header className="border-b border-black sticky top-0 bg-white z-10">
+      <header className="border-b border-[#ffaa1d] sticky top-0 bg-black z-10">
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
-            <a href="/" className="text-2xl font-bold">RentMe</a>
+            <a href="/" className="text-2xl font-bold text-[#ffaa1d]">RentMe</a>
             <div className="flex items-center gap-4">
-              <Button variant="outline" className="border-black text-black hover:bg-black hover:text-white">
+              <Button variant="outline" className="border-[#ffaa1d] text-[#ffaa1d] hover:bg-[#ffaa1d] hover:text-gray-900">
                 <a href="/post-items">Post Item</a>
               </Button>
-              <Button variant="outline" className="border-black text-black hover:bg-black hover:text-white">
+              <Button variant="outline" className="border-[#ffaa1d] text-[#ffaa1d] hover:bg-[#ffaa1d] hover:text-gray-900">
                 <a href="/profile">Profile</a>
               </Button>
             </div>
@@ -131,7 +469,7 @@ export default function ListingsPage() {
       </header>
 
       {/* Search and Filters Section */}
-      <div className="border-b border-black">
+      <div className="border-b border-[#ffaa1d]">
         <div className="container mx-auto px-4 py-6">
           <div className="flex flex-col md:flex-row gap-4">
             {/* Search Bar */}
@@ -142,12 +480,12 @@ export default function ListingsPage() {
                 placeholder="Search items or locations..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10 border-black focus:ring-black"
+                className="pl-10 bg-gray-800 border-[#ffaa1d] text-white placeholder:text-gray-400 focus:ring-[#ffaa1d]"
               />
             </div>
 
             {/* Filter Button */}
-            <Button variant="outline" className="border-black text-black hover:bg-black hover:text-white">
+            <Button variant="outline" className="border-[#ffaa1d] text-[#ffaa1d] hover:bg-[#ffaa1d] hover:text-gray-900">
               <SlidersHorizontal size={20} className="mr-2" />
               Filters
             </Button>
@@ -160,8 +498,8 @@ export default function ListingsPage() {
                 key={category}
                 onClick={() => setSelectedCategory(category)}
                 className={`px-4 py-2 rounded-full border-2 whitespace-nowrap transition-colors ${selectedCategory === category
-                  ? 'bg-black text-white border-black'
-                  : 'bg-white text-black border-black hover:bg-gray-100'
+                  ? 'bg-[#ffaa1d] text-gray-900 border-[#ffaa1d]'
+                  : 'bg-gray-800 text-[#ffaa1d] border-[#ffaa1d] hover:bg-gray-700'
                   }`}
               >
                 {category.charAt(0).toUpperCase() + category.slice(1)}
@@ -174,7 +512,7 @@ export default function ListingsPage() {
       {/* Listings Grid */}
       <div className="container mx-auto px-4 py-8">
         <div className="flex items-center justify-between mb-6">
-          <h2 className="text-2xl font-bold">
+          <h2 className="text-2xl font-bold text-white">
             {filteredListings.length} {filteredListings.length === 1 ? 'Item' : 'Items'} Available
           </h2>
         </div>
@@ -183,7 +521,7 @@ export default function ListingsPage() {
           {filteredListings.map((listing) => (
             <Card
               key={listing.id}
-              className="border-2 border-black shadow-none hover:shadow-lg transition-shadow cursor-pointer"
+              className="border-2 border-[#ffaa1d] bg-black shadow-none hover:shadow-xl hover:shadow-[#ffaa1d]/20 transition-all cursor-pointer"
             >
               <CardContent className="p-0">
                 {/* Image */}
@@ -193,39 +531,46 @@ export default function ListingsPage() {
                     alt={listing.title}
                     className="w-full h-full object-cover"
                   />
-                  <div className="absolute top-2 right-2 bg-white px-2 py-1 border border-black text-xs font-bold">
+                  <div className="absolute top-2 right-2 bg-[#ffaa1d] px-2 py-1 text-xs font-bold text-gray-900">
                     {listing.category}
                   </div>
                 </div>
 
                 {/* Content */}
                 <div className="p-4">
-                  <h3 className="font-bold text-lg mb-2 line-clamp-1">{listing.title}</h3>
+                  <h3 className="font-bold text-lg mb-2 line-clamp-1 text-white">{listing.title}</h3>
 
-                  <div className="flex items-center gap-1 text-sm text-gray-600 mb-2">
+                  <div className="flex items-center gap-1 text-sm text-gray-400 mb-2">
                     <MapPin size={14} />
                     <span className="line-clamp-1">{listing.location}</span>
                   </div>
 
                   <div className="flex items-center justify-between mb-3">
                     <div className="flex items-center gap-1">
-                      <DollarSign size={18} className="font-bold" />
-                      <span className="text-xl font-bold">{listing.price}</span>
-                      <span className="text-sm text-gray-600">/{listing.period}</span>
+                      <DollarSign size={18} className="font-bold text-[#ffaa1d]" />
+                      <span className="text-xl font-bold text-[#ffaa1d]">{listing.price}</span>
+                      <span className="text-sm text-gray-400">/{listing.period}</span>
                     </div>
                     <div className="flex items-center gap-1">
-                      <span className="text-sm">★</span>
-                      <span className="text-sm font-bold">{listing.rating}</span>
+                      <span className="text-sm text-[#ffaa1d]">★</span>
+                      <span className="text-sm font-bold text-white">{listing.rating}</span>
                     </div>
                   </div>
 
-                  <div className="text-sm text-gray-600 mb-3">
-                    Owner: <span className="font-medium text-black">{listing.owner}</span>
+                  <div className="text-sm text-gray-400 mb-3">
+                    Owner: <span className="font-medium text-white">{listing.owner}</span>
                   </div>
 
-                  <Button className="w-full bg-black text-white hover:bg-gray-800">
+                  <Button
+                    className="w-full bg-[#ffaa1d] text-gray-900 hover:bg-[#ff9500] font-bold"
+                    onClick={() => {
+                      setSelectedListing(listing);
+                      setIsModalOpen(true);
+                    }}
+                  >
                     View Details
                   </Button>
+
                 </div>
               </CardContent>
             </Card>
@@ -234,11 +579,152 @@ export default function ListingsPage() {
 
         {filteredListings.length === 0 && (
           <div className="text-center py-20">
-            <h3 className="text-2xl font-bold mb-2">No items found</h3>
-            <p className="text-gray-600">Try adjusting your search or filters</p>
+            <h3 className="text-2xl font-bold mb-2 text-white">No items found</h3>
+            <p className="text-gray-400">Try adjusting your search or filters</p>
           </div>
         )}
       </div>
+
+      {/* Item Details Modal */}
+      {isModalOpen && selectedListing && (
+        <div className="fixed inset-0 backdrop-blur-md bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-black border-2 border-[#ffaa1d] max-w-2xl w-full max-h-[90vh] flex flex-col">
+            {/* Modal Header */}
+            <div className="bg-black border-b-2 border-[#ffaa1d] p-4 flex items-center justify-between flex-shrink-0">
+              <h2 className="text-2xl font-bold text-[#ffaa1d]">Item Details</h2>
+              <button
+                onClick={() => setIsModalOpen(false)}
+                className="p-2 hover:bg-gray-700 rounded-full transition-colors text-[#ffaa1d]"
+              >
+                <X size={24} />
+              </button>
+            </div>
+
+            {/* Modal Content */}
+            <div className="p-6 overflow-y-auto">
+              {/* Image */}
+              <div className="relative h-64 mb-6 overflow-hidden rounded-lg">
+                <img
+                  src={selectedListing.image}
+                  alt={selectedListing.title}
+                  className="w-full h-full object-cover"
+                />
+                <div className="absolute top-2 right-2 bg-[#ffaa1d] px-3 py-1 text-sm font-bold text-gray-900">
+                  {selectedListing.category}
+                </div>
+              </div>
+
+              {/* Title and Rating */}
+              <div className="flex items-start justify-between mb-4">
+                <h3 className="text-2xl font-bold flex-1 text-white">{selectedListing.title}</h3>
+                <div className="flex items-center gap-1 ml-4">
+                  <span className="text-lg text-[#ffaa1d]">★</span>
+                  <span className="text-lg font-bold text-white">{selectedListing.rating}</span>
+                </div>
+              </div>
+
+              {/* Price */}
+              <div className="mb-6 p-4 border-2 border-[#ffaa1d] bg-gray-900 rounded-lg">
+                <div className="flex items-center gap-2">
+                  <DollarSign size={24} className="text-[#ffaa1d]" />
+                  <span className="text-3xl font-bold text-[#ffaa1d]">{selectedListing.price} KES</span>
+                  <span className="text-xl text-gray-400">/ {selectedListing.period}</span>
+                </div>
+              </div>
+
+              {/* Location */}
+              <div className="mb-6">
+                <div className="flex items-center gap-2 text-gray-300">
+                  <MapPin size={20} className="text-[#ffaa1d]" />
+                  <span className="text-lg">{selectedListing.location}</span>
+                </div>
+              </div>
+
+              {/* Description */}
+              <div className="mb-6">
+                <h4 className="font-bold text-lg mb-2 text-[#ffaa1d]">Description</h4>
+                <p className="text-gray-300">
+                  {selectedListing.description || 'No description available for this item.'}
+                </p>
+              </div>
+
+              {/* Owner Information */}
+              <div className="border-2 border-[#ffaa1d] p-4 mb-6 rounded-lg bg-gray-900">
+                <h4 className="font-bold text-lg mb-4 text-[#ffaa1d]">Contact Owner</h4>
+
+                <div className="space-y-3">
+                  {/* Owner Name */}
+                  <div className="flex items-center gap-3">
+                    <User size={20} className="text-[#ffaa1d]" />
+                    <div>
+                      <p className="text-sm text-gray-400">Owner</p>
+                      <p className="font-bold text-white">{selectedListing.owner}</p>
+                    </div>
+                  </div>
+
+                  {/* Phone */}
+                  {selectedListing.phone && (
+                    <div className="flex items-center gap-3">
+                      <Phone size={20} className="text-[#ffaa1d]" />
+                      <div>
+                        <p className="text-sm text-gray-400">Phone</p>
+                        <a
+                          href={`tel:${selectedListing.phone}`}
+                          className="font-bold text-white hover:text-[#ffaa1d] hover:underline transition-colors"
+                        >
+                          {selectedListing.phone}
+                        </a>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Email */}
+                  {selectedListing.email && (
+                    <div className="flex items-center gap-3">
+                      <Mail size={20} className="text-[#ffaa1d]" />
+                      <div>
+                        <p className="text-sm text-gray-400">Email</p>
+                        <a
+                          href={`mailto:${selectedListing.email}`}
+                          className="font-bold text-white hover:text-[#ffaa1d] hover:underline transition-colors"
+                        >
+                          {selectedListing.email}
+                        </a>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex gap-4">
+                <Button
+                  className="flex-1 bg-[#ffaa1d] text-gray-900 hover:bg-[#ff9500] font-bold"
+                  onClick={() => {
+                    if (selectedListing.phone) {
+                      window.location.href = `tel:${selectedListing.phone}`;
+                    }
+                  }}
+                >
+                  <Phone size={18} className="mr-2" />
+                  Call Owner
+                </Button>
+                <Button
+                  className="flex-1 bg-[#ffaa1d] text-gray-900 hover:bg-[#ff9500] font-bold"
+                  onClick={() => {
+                    if (selectedListing.email) {
+                      window.location.href = `mailto:${selectedListing.email}`;
+                    }
+                  }}
+                >
+                  <Mail size={18} className="mr-2" />
+                  Send Email
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
