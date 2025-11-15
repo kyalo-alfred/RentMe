@@ -6,4 +6,5 @@ router = DefaultRouter()
 router.register(r'couriers', CourierViewSet, basename='courier')
 router.register(r'assignments', CourierAssignmentViewSet, basename='courier-assignment')
 
+
 urlpatterns = router.urls

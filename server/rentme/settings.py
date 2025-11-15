@@ -23,12 +23,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-6b!2^gt+6f)p22yf3clktstedv*u$hpqw4hx#e$vrn3rp2810n'
+SECRET_KEY = config('SECRET_KEY', default='django-insecure-6b!2^gt+6f)p22yf3clktstedv*u$hpqw4hx#e$vrn3rp2810n')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = config('DEBUG', default=True, cast=bool)
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='localhost,127.0.0.1', cast=lambda v: [s.strip() for s in v.split(',')])
 
 
 # Application definition
@@ -44,8 +44,11 @@ INSTALLED_APPS = [
     'rest_framework_simplejwt',
     'rest_framework_simplejwt.token_blacklist',
     'corsheaders',
+    'django_filters',
     'accounts',
     'logistics_demo',
+    'bookings',
+	'listings',
 ]
 
 MIDDLEWARE = [
@@ -82,14 +85,12 @@ WSGI_APPLICATION = 'rentme.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
-# Use PostgreSQL from Render, fallback to SQLite for local development
 DATABASE_URL = config(
     'DATABASE_URL', default=f'sqlite:///{BASE_DIR / "db.sqlite3"}')
 
 DATABASES = {
     'default': dj_database_url.parse(DATABASE_URL, conn_max_age=600)
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
