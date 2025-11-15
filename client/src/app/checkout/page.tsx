@@ -2,88 +2,94 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { listings } from '@/app/data/listings';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select } from '@/components/ui/select';
-import { logisticsAPI } from '@/lib/api';
 import { Package, Truck, MapPin } from 'lucide-react';
 
-interface Courier {
-  id: number;
-  name: string;
-  display_name: string;
-  description: string;
-}
+// Mock API for demonstration
+const logisticsAPI = {
+  getCouriers: async () => [
+    { id: 1, name: 'BOLT', display_name: 'Bolt', description: 'Fast and reliable delivery service' },
+    { id: 2, name: 'GLOVO', display_name: 'Glovo', description: 'Quick delivery for your items' },
+    { id: 3, name: 'UBER', display_name: 'Uber', description: 'On-demand delivery service' },
+  ],
+  assignCourier: async (bookingId: string, courierId: number, pickup: string, delivery: string) => {
+    console.log('Assigned courier:', bookingId, courierId, pickup, delivery);
+    return { success: true };
+  }
+};
 
-export default function CheckoutPage() {
+export default function CourierPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const bookingId = searchParams.get('booking_id') || 'demo-booking-123';
-  
-  const [couriers, setCouriers] = useState<Courier[]>([]);
-  const [selectedCourierId, setSelectedCourierId] = useState<string>('');
+  const listingId = searchParams.get('listingId');
+  const listing = listings.find(item => item.id === Number(listingId));
+
+  const [couriers, setCouriers] = useState([]);
+  const [selectedCourierId, setSelectedCourierId] = useState('');
   const [pickupAddress, setPickupAddress] = useState('');
   const [deliveryAddress, setDeliveryAddress] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isLoadingCouriers, setIsLoadingCouriers] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState('');
 
-  // Fetch available couriers on component mount
   useEffect(() => {
     const fetchCouriers = async () => {
       try {
         setIsLoadingCouriers(true);
         const data = await logisticsAPI.getCouriers();
         setCouriers(data);
-        if (data.length > 0 && !selectedCourierId) {
-          setSelectedCourierId(data[0].id.toString());
-        }
+        if (data.length > 0) setSelectedCourierId(data[0].id.toString());
       } catch (err) {
-        console.error('Error fetching couriers:', err);
-        setError('Failed to load courier options. Please refresh the page.');
-        // Fallback to mock data if API fails
-        setCouriers([
-          { id: 1, name: 'BOLT', display_name: 'Bolt', description: 'Fast and reliable delivery service' },
-          { id: 2, name: 'GLOVO', display_name: 'Glovo', description: 'Quick delivery for your items' },
-          { id: 3, name: 'UBER', display_name: 'Uber', description: 'On-demand delivery service' },
-        ]);
-        setSelectedCourierId('1');
+        console.error(err);
+        setError('Failed to load couriers.');
       } finally {
         setIsLoadingCouriers(false);
       }
     };
-
     fetchCouriers();
   }, []);
 
   const handleAssignCourier = async () => {
     if (!selectedCourierId) {
-      setError('Please select a courier service');
+      setError('Please select a courier.');
+      return;
+    }
+    if (!pickupAddress.trim() || !deliveryAddress.trim()) {
+      setError('Both pickup and delivery addresses are required.');
       return;
     }
 
     setIsLoading(true);
-    setError(null);
+    setError('');
 
     try {
-      const assignment = await logisticsAPI.assignCourier(
-        bookingId,
+      await logisticsAPI.assignCourier(
+        listingId!,
         parseInt(selectedCourierId),
         pickupAddress,
         deliveryAddress
       );
 
-      // Redirect to confirmation page
-      router.push(`/checkout/confirmation?booking_id=${bookingId}&courier_id=${selectedCourierId}`);
+      // Redirect to confirmation page with all necessary info
+      router.push(
+        `/checkout/confirmation?listingId=${listingId}&courier_id=${selectedCourierId}&pickup=${encodeURIComponent(
+          pickupAddress
+        )}&delivery=${encodeURIComponent(deliveryAddress)}`
+      );
     } catch (err: any) {
-      console.error('Error assigning courier:', err);
-      setError(err.message || 'Failed to assign courier. Please try again.');
+      console.error(err);
+      setError('Failed to assign courier.');
     } finally {
       setIsLoading(false);
     }
   };
+
+  if (!listing) return <p>Listing not found.</p>;
 
   const selectedCourier = couriers.find(c => c.id.toString() === selectedCourierId);
 
@@ -226,6 +232,96 @@ export default function CheckoutPage() {
             </Card>
           </div>
         </div>
+    <div className="min-h-screen bg-gray-50 p-8">
+      <h1 className="text-3xl font-bold mb-6 text-center">Select Your Courier</h1>
+
+      <div className="max-w-4xl mx-auto grid md:grid-cols-2 gap-6">
+        {/* Order Summary */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Package className="w-5 h-5" />
+              Order Summary
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-2">
+              <p><span className="font-semibold">Item:</span> {listing.title}</p>
+              <p><span className="font-semibold">Price:</span> ${listing.price}</p>
+              <p><span className="font-semibold">Owner:</span> {listing.owner}</p>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Courier Selection */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Truck className="w-5 h-5" />
+              Courier Service
+            </CardTitle>
+            <CardDescription>Choose a delivery service</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {error && <p className="text-red-600">{error}</p>}
+
+            {isLoadingCouriers ? (
+              <p>Loading couriers...</p>
+            ) : (
+              <Select
+                value={selectedCourierId}
+                onChange={e => setSelectedCourierId(e.target.value)}
+                disabled={isLoading}
+              >
+                {couriers.map(c => (
+                  <option key={c.id} value={c.id}>{c.display_name} - {c.description}</option>
+                ))}
+              </Select>
+            )}
+
+            {selectedCourier && (
+              <div className="bg-gray-50 p-2 rounded">
+                <p className="font-semibold">{selectedCourier.display_name}</p>
+                <p className="text-sm text-gray-600">{selectedCourier.description}</p>
+              </div>
+            )}
+
+            {/* Required Addresses */}
+            <div className="space-y-2">
+              <Label htmlFor="pickup" className="flex items-center gap-2">
+                <MapPin className="w-4 h-4" />
+                Pickup Address
+              </Label>
+              <Input
+                id="pickup"
+                placeholder="Enter pickup address"
+                value={pickupAddress}
+                onChange={e => setPickupAddress(e.target.value)}
+                disabled={isLoading}
+              />
+
+              <Label htmlFor="delivery" className="flex items-center gap-2">
+                <MapPin className="w-4 h-4" />
+                Delivery Address
+              </Label>
+              <Input
+                id="delivery"
+                placeholder="Enter delivery address"
+                value={deliveryAddress}
+                onChange={e => setDeliveryAddress(e.target.value)}
+                disabled={isLoading}
+              />
+            </div>
+
+            <Button
+              onClick={handleAssignCourier}
+              disabled={isLoading}
+              className="w-full"
+            >
+              {isLoading ? 'Assigning...' : 'Confirm & Assign Courier'}
+            </Button>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );

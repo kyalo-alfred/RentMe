@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     'logistics_demo',
     'bookings',
 	'listings',
+     'payments',
 ]
 
 MIDDLEWARE = [
@@ -201,3 +202,12 @@ SIMPLE_JWT = {
     'AUTH_TOKEN_CLASSES': ('rest_framework_simplejwt.tokens.AccessToken',),
     'TOKEN_TYPE_CLAIM': 'token_type',
 }
+MPESA_CONSUMER_KEY = "your_key"
+MPESA_CONSUMER_SECRET = "your_secret"
+MPESA_SHORTCODE = "174379"
+MPESA_PASSKEY = "your_passkey"
+MPESA_TIMESTAMP = "20250101010101"
+MPESA_CALLBACK_URL = "https://<your-ngrok-id>.ngrok-free.app/api/payments/callback/"
+import base64
+password = base64.b64encode((MPESA_SHORTCODE + MPESA_PASSKEY + MPESA_TIMESTAMP).encode()).decode()
+MPESA_PASSWORD = password
