@@ -535,7 +535,7 @@ export default function ListingsPage() {
       <header className="border-b border-black sticky top-0 bg-white z-10">
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
-            <a href="/" className="text-2xl font-bold text-black">RentMe</a>
+            <a href="/listings" className="text-2xl font-bold text-black">RentMe</a>
             <div className="flex items-center gap-4">
               <Button variant="outline" className="border-black text-black hover:bg-black hover:text-white">
                 <a href="/post-items">Post Item</a>

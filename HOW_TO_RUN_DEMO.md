@@ -12,7 +12,7 @@
 
 If you haven't already:
 ```bash
-git clone <repository-url>
+git clone <https://github.com/kyalo-alfred/RentMe >
 cd RentMe
 ```
 

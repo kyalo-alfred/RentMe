@@ -204,6 +204,7 @@ export default function AccountPage() {
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <a href="/" className="text-2xl font-bold text-[#ffaa1d]">RentMe</a>
+            <a href="/listings" className="text-2xl font-bold">RentMe</a>
             <div className="flex items-center gap-4">
               <Button variant="outline" className="border-[#ffaa1d] text-[#ffaa1d] hover:bg-[#ffaa1d] hover:text-gray-900">
                 <a href="/listings">Browse Items</a>
