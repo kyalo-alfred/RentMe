@@ -21,7 +21,7 @@ class BookingViewSet(viewsets.ModelViewSet):
     queryset = Booking.objects.all()
     permission_classes = [IsAuthenticatedOrReadOnly]
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
-    filterset_fields = ['status', 'listing_id', 'renter']
+    filterset_fields = ['status', 'listing', 'renter']
     search_fields = ['renter__username', 'renter__email', 'notes']
     ordering_fields = ['created_at', 'start_date', 'total_price']
     ordering = ['-created_at']
@@ -63,6 +63,7 @@ class BookingViewSet(viewsets.ModelViewSet):
             bookings = bookings.filter(status=status_filter)
 
         # Filter by listing
+        listing_id = request.query_params.get('listing_id', '')
         if listing_id:
             bookings = bookings.filter(listing_id=listing_id)
 
@@ -132,7 +133,7 @@ class AvailabilityViewSet(viewsets.ModelViewSet):
     serializer_class = AvailabilitySerializer
     permission_classes = [IsAuthenticatedOrReadOnly]
     filter_backends = [DjangoFilterBackend, filters.OrderingFilter]
-    filterset_fields = ['listing_id']
+    filterset_fields = ['listing']
     ordering_fields = ['start_date', 'end_date']
     ordering = ['start_date']
 
@@ -153,9 +154,18 @@ class AvailabilityViewSet(viewsets.ModelViewSet):
                 status=status.HTTP_400_BAD_REQUEST
             )
 
+        from listings.models import Listing
+        try:
+            listing = Listing.objects.get(id=listing_id)
+        except Listing.DoesNotExist:
+            return Response(
+                {'detail': 'Listing not found'},
+                status=status.HTTP_404_NOT_FOUND
+            )
+
         # Check for overlapping bookings
         overlapping_bookings = Booking.objects.filter(
-            listing_id=listing_id,
+            listing=listing,
             status__in=['PENDING', 'CONFIRMED', 'ACTIVE'],
             start_date__lte=end_date,
             end_date__gte=start_date
@@ -163,7 +173,7 @@ class AvailabilityViewSet(viewsets.ModelViewSet):
 
         # Check for availability blocks
         overlapping_availability = Availability.objects.filter(
-            listing_id=listing_id,
+            listing=listing,
             start_date__lte=end_date,
             end_date__gte=start_date
         )
@@ -178,7 +188,10 @@ class AvailabilityViewSet(viewsets.ModelViewSet):
             'conflicts': {
                 'bookings': overlapping_bookings.count(),
                 'availability_blocks': overlapping_availability.count()
-            }
+            },
+            'total_price': str(listing.calculate_price(
+                start_date, end_date
+            )) if is_available else None
         })
 
 

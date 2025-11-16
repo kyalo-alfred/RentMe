@@ -51,3 +51,4 @@ class Command(BaseCommand):
         self.stdout.write(
             self.style.SUCCESS(f'\nSuccessfully processed {len(couriers_data)} couriers. Created {created_count} new ones.')
         )
+

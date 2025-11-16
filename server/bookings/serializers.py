@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
 from .models import Booking, Availability
+from listings.serializers import ListingSerializer
 
 User = get_user_model()
 
@@ -9,6 +10,7 @@ class BookingSerializer(serializers.ModelSerializer):
     """Serializer for Booking model"""
     renter_username = serializers.CharField(source='renter.username', read_only=True)
     renter_email = serializers.EmailField(source='renter.email', read_only=True)
+    listing_details = ListingSerializer(source='listing', read_only=True)
     duration_days = serializers.IntegerField(read_only=True)
     is_active = serializers.BooleanField(read_only=True)
 
@@ -19,7 +21,8 @@ class BookingSerializer(serializers.ModelSerializer):
             'renter',
             'renter_username',
             'renter_email',
-            'listing_id',
+            'listing',
+            'listing_details',
             'start_date',
             'end_date',
             'status',
@@ -55,12 +58,14 @@ class BookingSerializer(serializers.ModelSerializer):
 class AvailabilitySerializer(serializers.ModelSerializer):
     """Serializer for Availability model"""
     booking_details = BookingSerializer(source='booking', read_only=True)
+    listing_details = ListingSerializer(source='listing', read_only=True)
 
     class Meta:
         model = Availability
         fields = [
             'id',
-            'listing_id',
+            'listing',
+            'listing_details',
             'start_date',
             'end_date',
             'booking',
@@ -89,7 +94,7 @@ class BookingCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Booking
         fields = [
-            'listing_id',
+            'listing',
             'start_date',
             'end_date',
             'notes',
@@ -97,34 +102,24 @@ class BookingCreateSerializer(serializers.ModelSerializer):
 
     def validate(self, data):
         """Check if listing is available for the requested dates"""
-        listing_id = data.get('listing_id')
+        listing = data.get('listing')
         start_date = data.get('start_date')
         end_date = data.get('end_date')
 
-        # Check for overlapping bookings
-        overlapping_bookings = Booking.objects.filter(
-            listing_id=listing_id,
-            status__in=['PENDING', 'CONFIRMED', 'ACTIVE'],
-            start_date__lte=end_date,
-            end_date__gte=start_date
-        )
+        if not listing:
+            raise serializers.ValidationError({
+                'listing': 'Listing is required'
+            })
 
-        if overlapping_bookings.exists():
+        # Check if listing is available for dates
+        if not listing.is_available_for_dates(start_date, end_date):
             raise serializers.ValidationError({
                 'dates': 'Listing is not available for the selected dates'
             })
 
-        # Check for availability blocks
-        overlapping_availability = Availability.objects.filter(
-            listing_id=listing_id,
-            start_date__lte=end_date,
-            end_date__gte=start_date
-        )
-
-        if overlapping_availability.exists():
-            raise serializers.ValidationError({
-                'dates': 'Listing is not available for the selected dates'
-            })
+        # Calculate total price
+        total_price = listing.calculate_price(start_date, end_date)
+        data['total_price'] = total_price
 
         return data
 

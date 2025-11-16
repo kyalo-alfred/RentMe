@@ -1,6 +1,8 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -8,6 +10,8 @@ import { Label } from '@/components/ui/label';
 import { X, Upload, DollarSign, Calendar, MapPin, Tag } from 'lucide-react';
 
 export default function PostItemPage() {
+  const router = useRouter();
+  const { user, loading: authLoading } = useAuth();
   const [formData, setFormData] = useState({
     title: '',
     description: '',
@@ -22,6 +26,13 @@ export default function PostItemPage() {
 
   const [images, setImages] = useState([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Redirect if not authenticated
+  useEffect(() => {
+    if (!authLoading && !user) {
+      router.push('/signin');
+    }
+  }, [user, authLoading, router]);
 
   const categories = [
     'Electronics',
@@ -76,47 +87,88 @@ export default function PostItemPage() {
     setIsSubmitting(true);
 
     // Validate form
-    if (!formData.title || !formData.description || !formData.category || !formData.price) {
+    if (!formData.title || !formData.description || !formData.category || !formData.condition || !formData.price || !formData.location || !formData.availableFrom || !formData.availableTo) {
       alert('Please fill in all required fields');
+      setIsSubmitting(false);
+      return;
+    }
+
+    // Validate dates
+    if (new Date(formData.availableFrom) >= new Date(formData.availableTo)) {
+      alert('Available To date must be after Available From date');
       setIsSubmitting(false);
       return;
     }
 
     // Create FormData for file upload
     const submitData = new FormData();
-    Object.keys(formData).forEach(key => {
-      submitData.append(key, formData[key]);
-    });
+    submitData.append('title', formData.title);
+    submitData.append('description', formData.description);
+    submitData.append('category', formData.category);
+    submitData.append('condition', formData.condition);
+    submitData.append('price', formData.price);
+    submitData.append('price_period', formData.pricePeriod);
+    submitData.append('location', formData.location);
+    submitData.append('available_from', formData.availableFrom);
+    submitData.append('available_to', formData.availableTo);
 
-    images.forEach((image, index) => {
-      submitData.append(`image_${index}`, image.file);
+    images.forEach((image) => {
+      submitData.append('images', image.file);
     });
 
     // Submit to Django backend
     try {
-      console.log('Submitting item:', formData);
-      // Replace with actual API call:
-      // const response = await fetch('http://localhost:8000/api/items/', {
-      //   method: 'POST',
-      //   headers: {
-      //     'Authorization': `Bearer ${yourAccessToken}`
-      //   },
-      //   body: submitData
-      // });
-
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1500));
-
+      const { listingsAPI } = await import('@/lib/api');
+      await listingsAPI.createListing(submitData);
       alert('Item posted successfully!');
       // Redirect to listings page
       window.location.href = '/listings';
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error posting item:', error);
-      alert('Failed to post item. Please try again.');
+      let errorMessage = 'Failed to post item. Please try again.';
+      
+      try {
+        // Try to parse the error message
+        const errorObj = typeof error.message === 'string' ? JSON.parse(error.message) : error.message;
+        
+        // Handle different error formats
+        if (typeof errorObj === 'object') {
+          if (errorObj.detail) {
+            errorMessage = errorObj.detail;
+          } else {
+            // Extract all error messages
+            const errors = Object.entries(errorObj).map(([key, value]: [string, any]) => {
+              if (Array.isArray(value)) {
+                return `${key}: ${value.join(', ')}`;
+              }
+              return `${key}: ${value}`;
+            });
+            errorMessage = errors.join('\n') || errorMessage;
+          }
+        } else {
+          errorMessage = errorObj || error.message || errorMessage;
+        }
+      } catch (parseError) {
+        // If parsing fails, use the original message
+        errorMessage = error.message || errorMessage;
+      }
+      
+      alert(errorMessage);
     } finally {
       setIsSubmitting(false);
     }
   };
+
+  // Show loading or redirect if not authenticated
+  if (authLoading || !user) {
+    return (
+      <div className="min-h-screen bg-white flex items-center justify-center">
+        <div className="text-center">
+          <div className="text-xl font-bold">Loading...</div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-white">

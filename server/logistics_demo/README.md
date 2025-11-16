@@ -76,3 +76,4 @@ Courier and CourierAssignment models are registered in Django admin for manageme
 - This is a **demo** module - all courier assignments are simulated
 - The module is designed to be easily extended with real courier API integrations
 - Booking IDs are flexible strings to work with different booking/order systems
+

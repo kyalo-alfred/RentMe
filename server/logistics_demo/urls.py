@@ -8,3 +8,4 @@ router.register(r'assignments', CourierAssignmentViewSet, basename='courier-assi
 
 
 urlpatterns = router.urls
+

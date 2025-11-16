@@ -352,3 +352,4 @@ If you encounter issues:
 3. Check terminal/console for backend errors
 4. Verify database migrations are applied
 5. Verify couriers are seeded
+

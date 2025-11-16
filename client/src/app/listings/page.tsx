@@ -1,115 +1,92 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { Search, SlidersHorizontal, MapPin, Calendar, DollarSign } from 'lucide-react';
+import { Search, SlidersHorizontal, MapPin, DollarSign } from 'lucide-react';
+import { listingsAPI } from '@/lib/api';
+
+interface Listing {
+  id: number;
+  title: string;
+  price: string;
+  price_period: string;
+  location: string;
+  primary_image: string | null;
+  category: string;
+  owner: {
+    username: string;
+    first_name?: string;
+    last_name?: string;
+  };
+  average_rating: string;
+  is_available_for_rent: boolean;
+}
 
 export default function ListingsPage() {
+  const router = useRouter();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
+  const [listings, setListings] = useState<Listing[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  // Mock data - replace with API call to Django backend
-  const listings = [
-    {
-      id: 1,
-      title: 'Professional DSLR Camera',
-      price: 50,
-      period: 'day',
-      location: 'Nairobi, Kenya',
-      image: 'https://images.unsplash.com/photo-1502920917128-1aa500764cbd?w=400&h=300&fit=crop',
-      category: 'Electronics',
-      owner: 'John Doe',
-      rating: 4.8
-    },
-    {
-      id: 2,
-      title: 'Power Drill Set',
-      price: 15,
-      period: 'day',
-      location: 'Westlands, Nairobi',
-      image: 'https://images.unsplash.com/photo-1504148455328-c376907d081c?w=400&h=300&fit=crop',
-      category: 'Tools',
-      owner: 'Jane Smith',
-      rating: 5.0
-    },
-    {
-      id: 3,
-      title: 'Camping Tent (4 Person)',
-      price: 30,
-      period: 'day',
-      location: 'Karen, Nairobi',
-      image: 'https://images.unsplash.com/photo-1478131143081-80f7f84ca84d?w=400&h=300&fit=crop',
-      category: 'Outdoor',
-      owner: 'Mike Johnson',
-      rating: 4.5
-    },
-    {
-      id: 4,
-      title: 'PlayStation 5',
-      price: 25,
-      period: 'day',
-      location: 'CBD, Nairobi',
-      image: 'https://images.unsplash.com/photo-1606813907291-d86efa9b94db?w=400&h=300&fit=crop',
-      category: 'Electronics',
-      owner: 'Sarah Wilson',
-      rating: 4.9
-    },
-    {
-      id: 5,
-      title: 'Lawn Mower',
-      price: 20,
-      period: 'day',
-      location: 'Kilimani, Nairobi',
-      image: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&h=300&fit=crop',
-      category: 'Tools',
-      owner: 'David Brown',
-      rating: 4.7
-    },
-    {
-      id: 6,
-      title: 'Mountain Bike',
-      price: 35,
-      period: 'day',
-      location: 'Parklands, Nairobi',
-      image: 'https://images.unsplash.com/photo-1576435728678-68d0fbf94e91?w=400&h=300&fit=crop',
-      category: 'Sports',
-      owner: 'Emma Davis',
-      rating: 4.6
-    },
-    {
-      id: 7,
-      title: 'Projector & Screen',
-      price: 40,
-      period: 'day',
-      location: 'Upperhill, Nairobi',
-      image: 'https://images.unsplash.com/photo-1560169897-fc0cdbdfa4d5?w=400&h=300&fit=crop',
-      category: 'Electronics',
-      owner: 'Chris Lee',
-      rating: 4.8
-    },
-    {
-      id: 8,
-      title: 'Party Tent & Chairs',
-      price: 100,
-      period: 'day',
-      location: 'Lavington, Nairobi',
-      image: 'https://images.unsplash.com/photo-1519225421980-715cb0215aed?w=400&h=300&fit=crop',
-      category: 'Events',
-      owner: 'Lisa Anderson',
-      rating: 5.0
+  const categories = ['all', 'Electronics', 'Tools', 'Outdoor', 'Sports', 'Events', 'Vehicles', 'Home & Garden', 'Photography', 'Music', 'Other'];
+
+  useEffect(() => {
+    fetchListings();
+  }, [selectedCategory]);
+
+  const fetchListings = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const params: any = {};
+      if (selectedCategory !== 'all') {
+        params.category = selectedCategory;
+      }
+      if (searchQuery) {
+        params.search = searchQuery;
+      }
+      const data = await listingsAPI.getListings(params);
+      setListings(data.results || data);
+    } catch (err: any) {
+      console.error('Error fetching listings:', err);
+      setError('Failed to load listings. Please try again.');
+      setListings([]);
+    } finally {
+      setLoading(false);
     }
-  ];
+  };
 
-  const categories = ['all', 'Electronics', 'Tools', 'Outdoor', 'Sports', 'Events'];
+  const handleSearch = () => {
+    fetchListings();
+  };
 
   const filteredListings = listings.filter(listing => {
-    const matchesSearch = listing.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      listing.location.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesCategory = selectedCategory === 'all' || listing.category === selectedCategory;
-    return matchesSearch && matchesCategory;
+    if (selectedCategory !== 'all' && listing.category !== selectedCategory) {
+      return false;
+    }
+    if (searchQuery) {
+      const query = searchQuery.toLowerCase();
+      return listing.title.toLowerCase().includes(query) ||
+        listing.location.toLowerCase().includes(query);
+    }
+    return true;
   });
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-white flex items-center justify-center">
+        <div className="text-center">
+          <div className="text-xl font-bold mb-2">Loading listings...</div>
+          <div className="text-gray-600">Please wait</div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-white">
@@ -142,14 +119,19 @@ export default function ListingsPage() {
                 placeholder="Search items or locations..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
+                onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
                 className="pl-10 border-black focus:ring-black"
               />
             </div>
 
-            {/* Filter Button */}
-            <Button variant="outline" className="border-black text-black hover:bg-black hover:text-white">
-              <SlidersHorizontal size={20} className="mr-2" />
-              Filters
+            {/* Search Button */}
+            <Button 
+              variant="outline" 
+              className="border-black text-black hover:bg-black hover:text-white"
+              onClick={handleSearch}
+            >
+              <Search size={20} className="mr-2" />
+              Search
             </Button>
           </div>
 
@@ -179,23 +161,41 @@ export default function ListingsPage() {
           </h2>
         </div>
 
+        {error && (
+          <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded text-red-700">
+            {error}
+          </div>
+        )}
+
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {filteredListings.map((listing) => (
             <Card
               key={listing.id}
               className="border-2 border-black shadow-none hover:shadow-lg transition-shadow cursor-pointer"
+              onClick={() => router.push(`/listings/${listing.id}`)}
             >
               <CardContent className="p-0">
                 {/* Image */}
-                <div className="relative h-48 overflow-hidden">
-                  <img
-                    src={listing.image}
-                    alt={listing.title}
-                    className="w-full h-full object-cover"
-                  />
+                <div className="relative h-48 overflow-hidden bg-gray-200">
+                  {listing.primary_image ? (
+                    <img
+                      src={listing.primary_image}
+                      alt={listing.title}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center text-gray-400">
+                      No Image
+                    </div>
+                  )}
                   <div className="absolute top-2 right-2 bg-white px-2 py-1 border border-black text-xs font-bold">
                     {listing.category}
                   </div>
+                  {!listing.is_available_for_rent && (
+                    <div className="absolute top-2 left-2 bg-red-500 text-white px-2 py-1 text-xs font-bold">
+                      Unavailable
+                    </div>
+                  )}
                 </div>
 
                 {/* Content */}
@@ -211,19 +211,31 @@ export default function ListingsPage() {
                     <div className="flex items-center gap-1">
                       <DollarSign size={18} className="font-bold" />
                       <span className="text-xl font-bold">{listing.price}</span>
-                      <span className="text-sm text-gray-600">/{listing.period}</span>
+                      <span className="text-sm text-gray-600">/{listing.price_period}</span>
                     </div>
-                    <div className="flex items-center gap-1">
-                      <span className="text-sm">★</span>
-                      <span className="text-sm font-bold">{listing.rating}</span>
-                    </div>
+                    {listing.average_rating && parseFloat(listing.average_rating) > 0 && (
+                      <div className="flex items-center gap-1">
+                        <span className="text-sm">★</span>
+                        <span className="text-sm font-bold">{parseFloat(listing.average_rating).toFixed(1)}</span>
+                      </div>
+                    )}
                   </div>
 
                   <div className="text-sm text-gray-600 mb-3">
-                    Owner: <span className="font-medium text-black">{listing.owner}</span>
+                    Owner: <span className="font-medium text-black">
+                      {listing.owner.first_name && listing.owner.last_name
+                        ? `${listing.owner.first_name} ${listing.owner.last_name}`
+                        : listing.owner.username}
+                    </span>
                   </div>
 
-                  <Button className="w-full bg-black text-white hover:bg-gray-800">
+                  <Button 
+                    className="w-full bg-black text-white hover:bg-gray-800"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      router.push(`/listings/${listing.id}`);
+                    }}
+                  >
                     View Details
                   </Button>
                 </div>

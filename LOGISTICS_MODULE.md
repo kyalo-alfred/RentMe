@@ -174,3 +174,4 @@ The module is ready for:
 - ✅ Admin panel integration
 
 The module is production-ready for demo purposes and can be extended for real-world use.
+

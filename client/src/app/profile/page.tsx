@@ -7,7 +7,8 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { User, Package, Settings, LogOut, Edit2, Trash2, Eye } from 'lucide-react';
+import { User, Package, Settings, LogOut, Edit2, Trash2, Eye, Calendar, ShoppingBag } from 'lucide-react';
+import { listingsAPI, bookingsAPI } from '@/lib/api';
 
 export default function AccountPage() {
   const { user, logout, loading, refreshUser } = useAuth();
@@ -56,39 +57,51 @@ export default function AccountPage() {
     }
   }, [user]);
 
-  // Mock user listings - replace with API call
-  const userListings = [
-    {
-      id: 1,
-      title: 'Professional DSLR Camera',
-      price: 50,
-      period: 'day',
-      status: 'active',
-      image: 'https://images.unsplash.com/photo-1502920917128-1aa500764cbd?w=400&h=300&fit=crop',
-      views: 124,
-      bookings: 8
-    },
-    {
-      id: 2,
-      title: 'Power Drill Set',
-      price: 15,
-      period: 'day',
-      status: 'active',
-      image: 'https://images.unsplash.com/photo-1504148455328-c376907d081c?w=400&h=300&fit=crop',
-      views: 89,
-      bookings: 12
-    },
-    {
-      id: 3,
-      title: 'Camping Tent',
-      price: 30,
-      period: 'day',
-      status: 'rented',
-      image: 'https://images.unsplash.com/photo-1478131143081-80f7f84ca84d?w=400&h=300&fit=crop',
-      views: 156,
-      bookings: 15
+  // State for listings and bookings
+  const [userListings, setUserListings] = useState<any[]>([]);
+  const [myBookings, setMyBookings] = useState<any[]>([]);
+  const [loadingListings, setLoadingListings] = useState(false);
+  const [loadingBookings, setLoadingBookings] = useState(false);
+
+  // Fetch user's listings
+  useEffect(() => {
+    if (user && activeTab === 'listings') {
+      fetchUserListings();
     }
-  ];
+  }, [user, activeTab]);
+
+  // Fetch user's bookings
+  useEffect(() => {
+    if (user && activeTab === 'bookings') {
+      fetchMyBookings();
+    }
+  }, [user, activeTab]);
+
+  const fetchUserListings = async () => {
+    try {
+      setLoadingListings(true);
+      const data = await listingsAPI.getMyListings();
+      setUserListings(data.results || data);
+    } catch (err) {
+      console.error('Error fetching listings:', err);
+      setUserListings([]);
+    } finally {
+      setLoadingListings(false);
+    }
+  };
+
+  const fetchMyBookings = async () => {
+    try {
+      setLoadingBookings(true);
+      const data = await bookingsAPI.getMyBookings();
+      setMyBookings(data.results || data);
+    } catch (err) {
+      console.error('Error fetching bookings:', err);
+      setMyBookings([]);
+    } finally {
+      setLoadingBookings(false);
+    }
+  };
 
   const handleProfileUpdate = async () => {
     setUpdateError('');
@@ -172,9 +185,13 @@ export default function AccountPage() {
     }
   };
 
-  const handleDeleteListing = (id: number) => {
-    // Handle listing deletion
-    console.log('Deleting listing:', id);
+  const handleDeleteListing = async (id: number) => {
+    if (!confirm('Are you sure you want to delete this listing?')) {
+      return;
+    }
+    // Note: Delete functionality would need to be added to the API
+    console.log('Delete listing:', id);
+    alert('Delete functionality coming soon');
   };
 
   const handleLogout = async () => {
@@ -257,6 +274,17 @@ export default function AccountPage() {
                   >
                     <Package size={20} />
                     <span className="font-medium">My Listings</span>
+                  </button>
+
+                  <button
+                    onClick={() => setActiveTab('bookings')}
+                    className={`w-full flex items-center gap-3 px-4 py-3 rounded transition-colors ${activeTab === 'bookings'
+                      ? 'bg-black text-white'
+                      : 'text-black hover:bg-gray-100'
+                      }`}
+                  >
+                    <ShoppingBag size={20} />
+                    <span className="font-medium">My Bookings</span>
                   </button>
 
                   <button
@@ -395,7 +423,7 @@ export default function AccountPage() {
                   </div>
 
                   {/* Stats */}
-                  <div className="grid grid-cols-3 gap-4 mt-6 pt-6 border-t border-black">
+                  <div className="grid grid-cols-4 gap-4 mt-6 pt-6 border-t border-black">
                     <div className="text-center">
                       <div className="text-2xl font-bold">{user.rating}</div>
                       <div className="text-sm text-gray-600">Rating</div>
@@ -407,6 +435,10 @@ export default function AccountPage() {
                     <div className="text-center">
                       <div className="text-2xl font-bold">{userListings.length}</div>
                       <div className="text-sm text-gray-600">Listings</div>
+                    </div>
+                    <div className="text-center">
+                      <div className="text-2xl font-bold">{myBookings.length}</div>
+                      <div className="text-sm text-gray-600">Bookings</div>
                     </div>
                   </div>
                 </CardContent>
@@ -425,74 +457,210 @@ export default function AccountPage() {
                       </CardDescription>
                     </div>
                     <Button className="bg-black text-white hover:bg-gray-800">
-                      <a href="/post-item">Add New Item</a>
+                      <a href="/post-items">Add New Item</a>
                     </Button>
                   </div>
                 </CardHeader>
                 <CardContent className="p-6">
-                  <div className="space-y-4">
-                    {userListings.map((listing) => (
-                      <div
-                        key={listing.id}
-                        className="flex gap-4 p-4 border-2 border-black rounded hover:bg-gray-50 transition-colors"
-                      >
-                        <img
-                          src={listing.image}
-                          alt={listing.title}
-                          className="w-24 h-24 object-cover border border-black"
-                        />
+                  {loadingListings ? (
+                    <div className="text-center py-8">
+                      <div className="text-gray-600">Loading listings...</div>
+                    </div>
+                  ) : userListings.length === 0 ? (
+                    <div className="text-center py-8">
+                      <p className="text-gray-600 mb-4">You haven't posted any items yet.</p>
+                      <Button className="bg-black text-white hover:bg-gray-800">
+                        <a href="/post-items">Post Your First Item</a>
+                      </Button>
+                    </div>
+                  ) : (
+                    <div className="space-y-4">
+                      {userListings.map((listing) => (
+                        <div
+                          key={listing.id}
+                          className="flex gap-4 p-4 border-2 border-black rounded hover:bg-gray-50 transition-colors"
+                        >
+                          {listing.primary_image ? (
+                            <img
+                              src={listing.primary_image}
+                              alt={listing.title}
+                              className="w-24 h-24 object-cover border border-black"
+                            />
+                          ) : (
+                            <div className="w-24 h-24 bg-gray-200 border border-black flex items-center justify-center">
+                              <span className="text-gray-400 text-xs">No Image</span>
+                            </div>
+                          )}
 
-                        <div className="flex-1">
-                          <div className="flex items-start justify-between">
-                            <div>
-                              <h3 className="font-bold text-lg">{listing.title}</h3>
-                              <p className="text-xl font-bold mt-1">
-                                ${listing.price}
-                                <span className="text-sm text-gray-600">/{listing.period}</span>
-                              </p>
+                          <div className="flex-1">
+                            <div className="flex items-start justify-between">
+                              <div>
+                                <h3 className="font-bold text-lg">{listing.title}</h3>
+                                <p className="text-xl font-bold mt-1">
+                                  {listing.price} {listing.price_period === 'day' ? 'KES' : ''}
+                                  <span className="text-sm text-gray-600">/{listing.price_period}</span>
+                                </p>
+                              </div>
+                              <div className={`px-3 py-1 border-2 text-sm font-bold ${listing.is_available
+                                ? 'border-black bg-white'
+                                : 'border-black bg-black text-white'
+                                }`}>
+                                {listing.is_available ? 'AVAILABLE' : 'UNAVAILABLE'}
+                              </div>
                             </div>
-                            <div className={`px-3 py-1 border-2 text-sm font-bold ${listing.status === 'active'
-                              ? 'border-black bg-white'
-                              : 'border-black bg-black text-white'
-                              }`}>
-                              {listing.status.toUpperCase()}
-                            </div>
-                          </div>
 
-                          <div className="flex items-center gap-4 mt-3 text-sm text-gray-600">
-                            <div className="flex items-center gap-1">
-                              <Eye size={14} />
-                              <span>{listing.views} views</span>
+                            <div className="flex items-center gap-4 mt-3 text-sm text-gray-600">
+                              <div className="flex items-center gap-1">
+                                <Eye size={14} />
+                                <span>{listing.views_count || 0} views</span>
+                              </div>
+                              <div className="flex items-center gap-1">
+                                <Package size={14} />
+                                <span>{listing.bookings?.length || 0} bookings</span>
+                              </div>
+                              {listing.average_rating && parseFloat(listing.average_rating) > 0 && (
+                                <div className="flex items-center gap-1">
+                                  <span>★</span>
+                                  <span>{parseFloat(listing.average_rating).toFixed(1)}</span>
+                                </div>
+                              )}
                             </div>
-                            <div className="flex items-center gap-1">
-                              <Package size={14} />
-                              <span>{listing.bookings} bookings</span>
-                            </div>
-                          </div>
 
-                          <div className="flex gap-2 mt-3">
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              className="border-black text-black hover:bg-black hover:text-white"
-                            >
-                              <Edit2 size={14} className="mr-1" />
-                              Edit
-                            </Button>
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              className="border-black text-black hover:bg-black hover:text-white"
-                              onClick={() => handleDeleteListing(listing.id)}
-                            >
-                              <Trash2 size={14} className="mr-1" />
-                              Delete
-                            </Button>
+                            <div className="flex gap-2 mt-3">
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                className="border-black text-black hover:bg-black hover:text-white"
+                                onClick={() => router.push(`/listings/${listing.id}`)}
+                              >
+                                <Eye size={14} className="mr-1" />
+                                View
+                              </Button>
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    ))}
+                      ))}
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Bookings Tab */}
+            {activeTab === 'bookings' && (
+              <Card className="border-2 border-black shadow-none">
+                <CardHeader className="border-b border-black">
+                  <div>
+                    <CardTitle className="text-2xl">My Bookings</CardTitle>
+                    <CardDescription className="text-gray-600">
+                      Items you've rented
+                    </CardDescription>
                   </div>
+                </CardHeader>
+                <CardContent className="p-6">
+                  {loadingBookings ? (
+                    <div className="text-center py-8">
+                      <div className="text-gray-600">Loading bookings...</div>
+                    </div>
+                  ) : myBookings.length === 0 ? (
+                    <div className="text-center py-8">
+                      <p className="text-gray-600 mb-4">You haven't booked any items yet.</p>
+                      <Button className="bg-black text-white hover:bg-gray-800">
+                        <a href="/listings">Browse Items</a>
+                      </Button>
+                    </div>
+                  ) : (
+                    <div className="space-y-4">
+                      {myBookings.map((booking) => (
+                        <div
+                          key={booking.id}
+                          className="flex gap-4 p-4 border-2 border-black rounded hover:bg-gray-50 transition-colors"
+                        >
+                          {booking.listing_details?.primary_image ? (
+                            <img
+                              src={booking.listing_details.primary_image}
+                              alt={booking.listing_details.title}
+                              className="w-24 h-24 object-cover border border-black"
+                            />
+                          ) : (
+                            <div className="w-24 h-24 bg-gray-200 border border-black flex items-center justify-center">
+                              <span className="text-gray-400 text-xs">No Image</span>
+                            </div>
+                          )}
+
+                          <div className="flex-1">
+                            <div className="flex items-start justify-between">
+                              <div>
+                                <h3 className="font-bold text-lg">{booking.listing_details?.title || 'Item'}</h3>
+                                <div className="flex items-center gap-2 mt-1 text-sm text-gray-600">
+                                  <Calendar size={14} />
+                                  <span>
+                                    {new Date(booking.start_date).toLocaleDateString()} - {new Date(booking.end_date).toLocaleDateString()}
+                                  </span>
+                                </div>
+                                <p className="text-xl font-bold mt-2">
+                                  {booking.total_price} KES
+                                </p>
+                              </div>
+                              <div className={`px-3 py-1 border-2 text-sm font-bold ${
+                                booking.status === 'CONFIRMED' || booking.status === 'ACTIVE'
+                                  ? 'border-green-600 bg-green-50 text-green-700'
+                                  : booking.status === 'COMPLETED'
+                                  ? 'border-gray-600 bg-gray-50 text-gray-700'
+                                  : booking.status === 'CANCELLED'
+                                  ? 'border-red-600 bg-red-50 text-red-700'
+                                  : 'border-black bg-white'
+                              }`}>
+                                {booking.status}
+                              </div>
+                            </div>
+
+                            {booking.listing_details?.owner && (
+                              <div className="mt-3 text-sm text-gray-600">
+                                Owner: <span className="font-medium text-black">
+                                  {booking.listing_details.owner.first_name && booking.listing_details.owner.last_name
+                                    ? `${booking.listing_details.owner.first_name} ${booking.listing_details.owner.last_name}`
+                                    : booking.listing_details.owner.username}
+                                </span>
+                              </div>
+                            )}
+
+                            <div className="flex gap-2 mt-3">
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                className="border-black text-black hover:bg-black hover:text-white"
+                                onClick={() => router.push(`/listings/${booking.listing_details?.id || booking.listing}`)}
+                              >
+                                <Eye size={14} className="mr-1" />
+                                View Item
+                              </Button>
+                              {booking.status === 'PENDING' && (
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  className="border-red-600 text-red-600 hover:bg-red-50"
+                                  onClick={async () => {
+                                    if (confirm('Are you sure you want to cancel this booking?')) {
+                                      try {
+                                        await bookingsAPI.cancelBooking(booking.id);
+                                        fetchMyBookings();
+                                        alert('Booking cancelled successfully');
+                                      } catch (err) {
+                                        alert('Failed to cancel booking');
+                                      }
+                                    }
+                                  }}
+                                >
+                                  Cancel
+                                </Button>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </CardContent>
               </Card>
             )}
