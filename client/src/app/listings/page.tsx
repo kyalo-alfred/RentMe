@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
@@ -458,6 +458,11 @@ export default function ListingsPage() {
     const matchesCategory = selectedCategory === 'all' || listing.category === selectedCategory;
     return matchesSearch && matchesCategory;
   });
+import { useRouter } from 'next/navigation';
+import { listings } from '../data/listings';
+
+export default function ListingsPage() {
+  const router = useRouter();
 
   const resetRentState = () => {
     setStartDate('');
@@ -671,6 +676,32 @@ export default function ListingsPage() {
             <p className="text-gray-600">Try adjusting your search or filters</p>
           </div>
         )}
+    <div className="p-8 bg-gray-50 min-h-screen">
+      <h1 className="text-3xl font-bold mb-6 text-center">Available Listings</h1>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        {listings.map((listing) => (
+          <div key={listing.id} className="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition">
+            <img src={listing.image} alt={listing.title} className="h-48 w-full object-cover" />
+            <div className="p-4">
+              <h2 className="text-lg font-semibold">{listing.title}</h2>
+              <p className="text-gray-600">{listing.location}</p>
+              <p className="mt-2 font-medium text-blue-600">
+                ${listing.price}/{listing.period}
+              </p>
+              <p className="text-sm text-gray-500 mt-1">{listing.category}</p>
+              <div className="mt-3 flex justify-between items-center">
+                <span className="text-sm text-yellow-500">⭐ {listing.rating}</span>
+                <button
+                  onClick={() => router.push(`/listings/${listing.id}`)}
+                  className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
+                >
+                  View Details
+                </button>
+              </div>
+            </div>
+          </div>
+        ))}
       </div>
 
       {/* Item Details Modal */}
