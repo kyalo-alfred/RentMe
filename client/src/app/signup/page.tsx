@@ -81,11 +81,11 @@ export default function SignUpPage() {
   };
 
   return (
-    <div className="min-h-screen bg-black flex flex-col">
+    <div className="min-h-screen bg-[#FFB700] flex flex-col">
       {/* Header */}
       <header className="py-4 px-4">
         <div className="container mx-auto px-4 py-4">
-          <a href="/" className="text-4xl font-bold text-[#ffaa1d]">RentMe</a>
+          <a href="/" className="text-4xl font-bold text-black">RentMe</a>
         </div>
       </header>
 
