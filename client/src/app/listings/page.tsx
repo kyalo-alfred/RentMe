@@ -50,11 +50,11 @@ export default function ListingsPage() {
       try {
         setLoading(true);
         setError(null);
-        // const response = await listingsAPI.getListings({ is_active: true });
-        // setListings(response.results);
+        const response = await listingsAPI.getListings({ is_active: true });
+        setListings(response.results);
 
-        // Using mock data for development
-        setListings(mockListings);
+        // // Using mock data for development
+        // setListings(mockListings);
       } catch (err: any) {
         setError(err.message || 'Failed to load listings');
         console.error('Error fetching listings:', err);
@@ -589,7 +589,7 @@ export default function ListingsPage() {
 
   return (
     <SidebarProvider defaultOpen={true}>
-      <div className="flex min-h-screen w-full bg-white">
+      <div className="flex min-h-screen w-full bg-[#FFB700]">
         {/* Sidebar */}
         <Sidebar side="left" collapsible="offcanvas">
 
@@ -717,84 +717,86 @@ export default function ListingsPage() {
           </header>
 
           {/* Listings Grid */}
-          <div className="container mx-auto px-4 py-8 bg-[#FFB700]">
+          <div className=" px-4 py-8 bg-[#FFB700]">
+            {filteredListings.length > 0 ? (
+              <div className="w-full min-h-screen grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 p-6">
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              {filteredListings.map((listing) => (
-                <Card
-                  key={listing.id}
-                  className="bg-white shadow-none hover:shadow-lg transition-shadow cursor-pointer"
-                >
-                  <CardContent className="p-0">
-                    {/* Image */}
-                    <div className="relative h-48 overflow-hidden">
-                      <img
-                        src={listing.image}
-                        alt={listing.title}
-                        className="w-full h-full object-cover"
-                      />
-                      <div className="absolute top-2 right-2 bg-white px-2 py-1 border border-black text-xs font-bold">{listing.category}</div>
-                    </div>
-
-                    {/* Content */}
-                    <div className="p-4">
-                      <h3 className="font-bold text-lg mb-2 line-clamp-1">{listing.title}</h3>
-
-                      <div className="flex items-center gap-1 text-sm text-gray-600 mb-2">
-                        <MapPin size={14} />
-                        <span className="line-clamp-1">{listing.location}</span>
+                {filteredListings.map((listing) => (
+                  <Card
+                    key={listing.id}
+                    className="bg-white shadow-none hover:shadow-lg transition-shadow cursor-pointer"
+                  >
+                    <CardContent className="p-0">
+                      {/* Image */}
+                      <div className="relative h-48 overflow-hidden">
+                        <img
+                          src={listing.image}
+                          alt={listing.title}
+                          className="w-full h-full object-cover"
+                        />
+                        <div className="absolute top-2 right-2 bg-white px-2 py-1 border border-black text-xs font-bold">{listing.category}</div>
                       </div>
 
-                      <div className="flex items-center justify-between mb-3">
-                        <div className="flex items-center gap-1">
-                          <p>KES</p>
-                          <span className="text-xl font-bold">{listing.price}</span>
-                          <span className="text-sm text-gray-600">/{listing.price_period}</span>
+                      {/* Content */}
+                      <div className="p-4">
+                        <h3 className="font-bold text-lg mb-2 line-clamp-1">{listing.title}</h3>
+
+                        <div className="flex items-center gap-1 text-sm text-gray-600 mb-2">
+                          <MapPin size={14} />
+                          <span className="line-clamp-1">{listing.location}</span>
                         </div>
-                        {listing.rating && (
+
+                        <div className="flex items-center justify-between mb-3">
                           <div className="flex items-center gap-1">
-                            <span className="text-sm">Ôÿà</span>
-                            <span className="text-sm font-bold">{listing.rating}</span>
+                            <p>KES</p>
+                            <span className="text-xl font-bold">{listing.price}</span>
+                            <span className="text-sm text-gray-600">/{listing.price_period}</span>
                           </div>
-                        )}
-                      </div>
+                          {listing.rating && (
+                            <div className="flex items-center gap-1">
+                              <span className="text-sm">Ôÿà</span>
+                              <span className="text-sm font-bold">{listing.rating}</span>
+                            </div>
+                          )}
+                        </div>
 
-                      <div className="text-sm text-gray-600 mb-3">
-                        Owner: <span className="font-medium text-black">{typeof listing.owner === 'object' ? `${listing.owner.first_name} ${listing.owner.last_name}`.trim() || listing.owner.username : listing.owner}</span>
-                      </div>
-                      <div className="grid grid-cols-2 gap-2">
+                        <div className="text-sm text-gray-600 mb-3">
+                          Owner: <span className="font-medium text-black">{typeof listing.owner === 'object' ? `${listing.owner.first_name} ${listing.owner.last_name}`.trim() || listing.owner.username : listing.owner}</span>
+                        </div>
+                        <div className="grid grid-cols-2 gap-2">
 
-                        <Button
-                          variant="outline"
-                          className="w-full text-black hover:bg-[#FFB700] hover:text-white:width,"
-                          onClick={() => {
-                            setSelectedListing(listing);
-                            setIsModalOpen(true);
-                          }}
-                        >
-                          View
-                        </Button>
-                        <Button
-                          variant='outline'
-                          className="w-full bg-white text-black hover:bg-[#FFB700]"
-                          onClick={() => {
-                            setRentOpenForId(listing.id);
-                            resetRentState();
-                          }}
-                        >
-                          Rent
-                        </Button>
+                          <Button
+                            variant="outline"
+                            className="w-full text-black hover:bg-[#FFB700] hover:text-white:width,"
+                            onClick={() => {
+                              setSelectedListing(listing);
+                              setIsModalOpen(true);
+                            }}
+                          >
+                            View
+                          </Button>
+                          <Button
+                            variant='outline'
+                            className="w-full bg-white text-black hover:bg-[#FFB700]"
+                            onClick={() => {
+                              setRentOpenForId(listing.id);
+                              resetRentState();
+                            }}
+                          >
+                            Rent
+                          </Button>
+                        </div>
                       </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-
-            {filteredListings.length === 0 && (
-              <div className="text-center py-20">
-                <h3 className="text-2xl font-bold mb-2">No items found</h3>
-                <p className="text-gray-600">Try adjusting your search or filters</p>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            ) : (
+              <div className="flex items-center justify-center min-h-screen">
+                <div className="text-center">
+                  <h3 className="text-2xl font-bold mb-2">No items found</h3>
+                  <p className="text-gray-600">Try adjusting your search or filters</p>
+                </div>
               </div>
             )}
           </div>
