@@ -3,11 +3,13 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useRouter } from 'next/navigation';
+import Link from 'next/Link'
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { User, Package, Settings, LogOut, Edit2, Trash2, Eye } from 'lucide-react';
+import { CircleChevronLeft, User, Package, Settings, LogOut, Edit2, Trash2, Eye } from 'lucide-react';
+import next from 'next';
 
 export default function AccountPage() {
   const { user, logout, loading, refreshUser } = useAuth();
@@ -207,20 +209,15 @@ export default function AccountPage() {
   }
 
   return (
-    <div className="min-h-screen bg-black">
+    <div className="min-h-screen bg-[#FFB700]">
       {/* Header */}
-      <header className="border-b border-[#ffaa1d] sticky top-0 bg-black z-10">
-        <div className="container mx-auto px-4 py-4">
+      <header className="sticky top-0 z-10">
+        <div className="container mx-auto px-4 py-6">
           <div className="flex items-center justify-between">
-            <a href="/" className="text-2xl font-bold text-[#ffaa1d]">RentMe</a>
-            <a href="/listings" className="text-2xl font-bold">RentMe</a>
             <div className="flex items-center gap-4">
-              <Button variant="outline" className="border-[#ffaa1d] text-[#ffaa1d] hover:bg-[#ffaa1d] hover:text-gray-900">
-                <a href="/listings">Browse Items</a>
-              </Button>
-              <Button variant="outline" className="border-[#ffaa1d] text-[#ffaa1d] hover:bg-[#ffaa1d] hover:text-gray-900">
-                <a href="/post-items">Post Item</a>
-              </Button>
+              <Link href="/listings">
+                <CircleChevronLeft className="text-white w-6 h-6" /><p className='text-white font-bold'>Esc</p>
+              </Link>
             </div>
           </div>
         </div>
@@ -230,7 +227,7 @@ export default function AccountPage() {
         <div className="grid lg:grid-cols-4 gap-6">
           {/* Sidebar */}
           <div className="lg:col-span-1">
-            <Card className="border-2 border-[#ffaa1d] shadow-none bg-gray-900">
+            <Card className="border-2 border-[#ffaa1d] shadow-none bg-black">
               <CardContent className="p-0">
                 {/* Profile Summary */}
                 <div className="p-6 border-b border-[#ffaa1d]">
@@ -246,7 +243,7 @@ export default function AccountPage() {
                 </div>
 
                 {/* Navigation */}
-                <nav className="p-2">
+                <nav className="p-4">
                   <button
                     onClick={() => setActiveTab('profile')}
                     className={`w-full flex items-center gap-3 px-4 py-3 rounded transition-colors ${activeTab === 'profile'
@@ -296,7 +293,7 @@ export default function AccountPage() {
           <div className="lg:col-span-3">
             {/* Profile Tab */}
             {activeTab === 'profile' && (
-              <Card className="border-2 border-[#ffaa1d] shadow-none bg-gray-900">
+              <Card className="border-2 border-[#ffaa1d] shadow-none bg-black">
                 <CardHeader className="border-b border-[#ffaa1d]">
                   <div className="flex items-center justify-between">
                     <div>
