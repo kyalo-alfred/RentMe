@@ -685,7 +685,7 @@ export default function ListingsPage() {
         </Sidebar>
 
         {/* Main Content */}
-        <SidebarInset className="flex-1">
+        <SidebarInset className="flex-1 bg-[#FFB700] min-h-screen">
           {/* Header */}
           <header className="sticky top-0 bg-[#FFB700] z-10">
             <div className="container mx-auto px-4 py-4">
@@ -723,7 +723,7 @@ export default function ListingsPage() {
           {/* Listings Grid */}
           <div className=" px-4 py-8 bg-[#FFB700]">
             {filteredListings.length > 0 ? (
-              <div className="w-full min-h-screen grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 p-6">
+              <div className="w-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 p-6">
 
                 {filteredListings.map((listing) => (
                   <Card

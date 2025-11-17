@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -10,8 +9,6 @@ import { X, Upload, DollarSign, Calendar, MapPin, Tag } from 'lucide-react';
 import { listingsAPI } from '@/lib/api';
 
 export default function PostItemPage() {
-  const router = useRouter();
-  const { user } = useAuth();
   const [formData, setFormData] = useState({
     title: '',
     description: '',
@@ -94,14 +91,6 @@ export default function PostItemPage() {
     const token = typeof window !== 'undefined' ? localStorage.getItem('access_token') : null;
     if (!token) {
       setError('Please sign in to post an item');
-      setIsSubmitting(false);
-      return;
-    }
-
-    // Check if user is authenticated
-    if (!user) {
-      alert('Please login to post an item');
-      router.push('/signin');
       setIsSubmitting(false);
       return;
     }
