@@ -36,6 +36,11 @@ export default function AccountPage() {
   const [passwordError, setPasswordError] = useState('');
   const [passwordSuccess, setPasswordSuccess] = useState('');
 
+  // User listings state
+  const [userListings, setUserListings] = useState<any[]>([]);
+  const [listingsLoading, setListingsLoading] = useState(false);
+  const [listingsError, setListingsError] = useState('');
+
   // Redirect if not logged in
   useEffect(() => {
     if (!loading && !user) {
@@ -56,39 +61,43 @@ export default function AccountPage() {
     }
   }, [user]);
 
-  // Mock user listings - replace with API call
-  const userListings = [
-    {
-      id: 1,
-      title: 'Professional DSLR Camera',
-      price: 50,
-      period: 'day',
-      status: 'active',
-      image: 'https://images.unsplash.com/photo-1502920917128-1aa500764cbd?w=400&h=300&fit=crop',
-      views: 124,
-      bookings: 8
-    },
-    {
-      id: 2,
-      title: 'Power Drill Set',
-      price: 15,
-      period: 'day',
-      status: 'active',
-      image: 'https://images.unsplash.com/photo-1504148455328-c376907d081c?w=400&h=300&fit=crop',
-      views: 89,
-      bookings: 12
-    },
-    {
-      id: 3,
-      title: 'Camping Tent',
-      price: 30,
-      period: 'day',
-      status: 'rented',
-      image: 'https://images.unsplash.com/photo-1478131143081-80f7f84ca84d?w=400&h=300&fit=crop',
-      views: 156,
-      bookings: 15
+  // Fetch user listings
+  useEffect(() => {
+    const fetchUserListings = async () => {
+      if (!user) return;
+
+      setListingsLoading(true);
+      setListingsError('');
+
+      try {
+        const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api';
+        const token = localStorage.getItem('access_token');
+
+        const response = await fetch(`${API_BASE_URL}/listings/mine/`, {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+          },
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to fetch listings');
+        }
+
+        const data = await response.json();
+        setUserListings(data);
+      } catch (err: any) {
+        console.error('Error fetching user listings:', err);
+        setListingsError(err.message || 'Failed to load listings');
+      } finally {
+        setListingsLoading(false);
+      }
+    };
+
+    if (user) {
+      fetchUserListings();
     }
-  ];
+  }, [user]);
 
   const handleProfileUpdate = async () => {
     setUpdateError('');
@@ -431,69 +440,89 @@ export default function AccountPage() {
                   </div>
                 </CardHeader>
                 <CardContent className="p-6">
-                  <div className="space-y-4">
-                    {userListings.map((listing) => (
-                      <div
-                        key={listing.id}
-                        className="flex gap-4 p-4 border-2 border-[#ffaa1d] rounded hover:bg-gray-800 transition-colors"
+                  {listingsLoading ? (
+                    <div className="text-center py-8 text-white">Loading listings...</div>
+                  ) : listingsError ? (
+                    <div className="text-center py-8">
+                      <p className="text-red-400 mb-4">{listingsError}</p>
+                      <Button
+                        onClick={() => window.location.reload()}
+                        className="bg-[#ffaa1d] text-gray-900 hover:bg-[#ff9500] font-bold"
                       >
-                        <img
-                          src={listing.image}
-                          alt={listing.title}
-                          className="w-24 h-24 object-cover border border-[#ffaa1d]"
-                        />
+                        Retry
+                      </Button>
+                    </div>
+                  ) : userListings.length === 0 ? (
+                    <div className="text-center py-8">
+                      <Package size={48} className="mx-auto mb-4 text-gray-400" />
+                      <p className="text-gray-400 mb-4">You haven't posted any items yet</p>
+                      <Button className="bg-[#ffaa1d] text-gray-900 hover:bg-[#ff9500] font-bold">
+                        <a href="/post-item">Post Your First Item</a>
+                      </Button>
+                    </div>
+                  ) : (
+                    <div className="space-y-4">
+                      {userListings.map((listing) => (
+                        <div
+                          key={listing.id}
+                          className="flex gap-4 p-4 border-2 border-[#ffaa1d] rounded hover:bg-gray-800 transition-colors"
+                        >
+                          {listing.image && (
+                            <img
+                              src={listing.image}
+                              alt={listing.title}
+                              className="w-24 h-24 object-cover border border-[#ffaa1d]"
+                            />
+                          )}
 
-                        <div className="flex-1">
-                          <div className="flex items-start justify-between">
-                            <div>
-                              <h3 className="font-bold text-lg text-white">{listing.title}</h3>
-                              <p className="text-xl font-bold mt-1 text-[#ffaa1d]">
-                                ${listing.price}
-                                <span className="text-sm text-gray-400">/{listing.period}</span>
-                              </p>
+                          <div className="flex-1">
+                            <div className="flex items-start justify-between">
+                              <div>
+                                <h3 className="font-bold text-lg text-white">{listing.title}</h3>
+                                <p className="text-xl font-bold mt-1 text-[#ffaa1d]">
+                                  ${listing.price}
+                                  <span className="text-sm text-gray-400">/{listing.price_period}</span>
+                                </p>
+                                {listing.category && (
+                                  <p className="text-sm text-gray-400 mt-1">{listing.category}</p>
+                                )}
+                              </div>
+                              <div className={`px-3 py-1 border-2 text-sm font-bold ${listing.is_active
+                                ? 'border-[#ffaa1d] bg-gray-900 text-[#ffaa1d]'
+                                : 'border-gray-500 bg-gray-800 text-gray-400'
+                                }`}>
+                                {listing.is_active ? 'ACTIVE' : 'INACTIVE'}
+                              </div>
                             </div>
-                            <div className={`px-3 py-1 border-2 text-sm font-bold ${listing.status === 'active'
-                              ? 'border-[#ffaa1d] bg-gray-900 text-[#ffaa1d]'
-                              : 'border-[#ffaa1d] bg-[#ffaa1d] text-gray-900'
-                              }`}>
-                              {listing.status.toUpperCase()}
-                            </div>
-                          </div>
 
-                          <div className="flex items-center gap-4 mt-3 text-sm text-gray-400">
-                            <div className="flex items-center gap-1">
-                              <Eye size={14} />
-                              <span>{listing.views} views</span>
-                            </div>
-                            <div className="flex items-center gap-1">
-                              <Package size={14} />
-                              <span>{listing.bookings} bookings</span>
-                            </div>
-                          </div>
+                            {listing.description && (
+                              <p className="text-sm text-gray-400 mt-2 line-clamp-2">{listing.description}</p>
+                            )}
 
-                          <div className="flex gap-2 mt-3">
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              className="border-[#ffaa1d] text-[#ffaa1d] hover:bg-[#ffaa1d] hover:text-gray-900"
-                            >
-                              <Edit2 size={14} className="mr-1" />
-                              Edit
-                            </Button>
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              className="border-[#ffaa1d] text-[#ffaa1d] hover:bg-[#ffaa1d] hover:text-gray-900"
-                              onClick={() => handleDeleteListing(listing.id)}
-                            >
-                              <Trash2 size={14} className="mr-1" />
-                              Delete
-                            </Button>
+                            <div className="flex gap-2 mt-3">
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                className="border-[#ffaa1d] text-[#ffaa1d] hover:bg-[#ffaa1d] hover:text-gray-900"
+                              >
+                                <Edit2 size={14} className="mr-1" />
+                                Edit
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                className="border-[#ffaa1d] text-[#ffaa1d] hover:bg-[#ffaa1d] hover:text-gray-900"
+                                onClick={() => handleDeleteListing(listing.id)}
+                              >
+                                <Trash2 size={14} className="mr-1" />
+                                Delete
+                              </Button>
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    ))}
-                  </div>
+                      ))}
+                    </div>
+                  )}
                 </CardContent>
               </Card>
             )}
