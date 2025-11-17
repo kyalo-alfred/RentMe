@@ -672,7 +672,7 @@ export default function ListingsPage() {
             <Button
               onClick={handleProfileClick}
               variant="outline"
-              className="w-full border-black text-black hover:bg-black hover:text-white"
+              className="w-full border-0 rounded-md text-black hover:bg-[#ffaa1d] hover:text-white"
             >
               <UserCircle size={18} className="mr-2" />
               Profile
@@ -697,7 +697,7 @@ export default function ListingsPage() {
                     placeholder="Search items..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="pl-8 border-black h-12 bg-white"
+                    className="pl-8 border-0 rounded-full h-12 bg-white"
                   />
                 </div>
 

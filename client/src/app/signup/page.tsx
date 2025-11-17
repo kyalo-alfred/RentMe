@@ -83,15 +83,15 @@ export default function SignUpPage() {
   return (
     <div className="min-h-screen bg-black flex flex-col">
       {/* Header */}
-      <header className="border-b border-[#ffaa1d]">
+      <header className="py-4 px-4">
         <div className="container mx-auto px-4 py-4">
-          <a href="/" className="text-2xl font-bold text-[#ffaa1d]">RentMe</a>
+          <a href="/" className="text-4xl font-bold text-[#ffaa1d]">RentMe</a>
         </div>
       </header>
 
       {/* Main Content */}
       <div className="flex-1 flex items-center justify-center px-4 py-12">
-        <Card className="w-full max-w-md border-2 border-[#ffaa1d] shadow-none bg-black">
+        <Card className="w-full max-w-md border-0 shadow-none bg-black">
           <CardHeader className="space-y-1 text-center">
             <CardTitle className="text-3xl font-bold text-white">Create Account</CardTitle>
             <CardDescription className="text-gray-400">
