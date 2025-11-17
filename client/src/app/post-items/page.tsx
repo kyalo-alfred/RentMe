@@ -6,6 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { X, Upload, DollarSign, Calendar, MapPin, Tag } from 'lucide-react';
+import { listingsAPI } from '@/lib/api';
 
 export default function PostItemPage() {
   const [formData, setFormData] = useState({
@@ -22,6 +23,8 @@ export default function PostItemPage() {
 
   const [images, setImages] = useState([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
 
   const categories = [
     'Electronics',
@@ -74,45 +77,56 @@ export default function PostItemPage() {
 
   const handleSubmit = async () => {
     setIsSubmitting(true);
+    setError('');
+    setSuccess('');
 
     // Validate form
-    if (!formData.title || !formData.description || !formData.category || !formData.price) {
-      alert('Please fill in all required fields');
+    if (!formData.title || !formData.description || !formData.category || !formData.price || !formData.location || !formData.condition) {
+      setError('Please fill in all required fields');
+      setIsSubmitting(false);
+      return;
+    }
+
+    // Check if user is authenticated
+    const token = typeof window !== 'undefined' ? localStorage.getItem('access_token') : null;
+    if (!token) {
+      setError('Please sign in to post an item');
       setIsSubmitting(false);
       return;
     }
 
     // Create FormData for file upload
     const submitData = new FormData();
-    Object.keys(formData).forEach(key => {
-      submitData.append(key, formData[key]);
+    submitData.append('title', formData.title);
+    submitData.append('description', formData.description);
+    submitData.append('category', formData.category);
+    submitData.append('price', formData.price);
+    submitData.append('price_period', formData.pricePeriod);
+    submitData.append('location', formData.location);
+    submitData.append('condition', formData.condition);
+    
+    if (formData.availableFrom) {
+      submitData.append('available_from', formData.availableFrom);
+    }
+    if (formData.availableTo) {
+      submitData.append('available_to', formData.availableTo);
+    }
+
+    images.forEach((image) => {
+      submitData.append('images', image.file);
     });
 
-    images.forEach((image, index) => {
-      submitData.append(`image_${index}`, image.file);
-    });
-
-    // Submit to Django backend
     try {
-      console.log('Submitting item:', formData);
-      // Replace with actual API call:
-      // const response = await fetch('http://localhost:8000/api/items/', {
-      //   method: 'POST',
-      //   headers: {
-      //     'Authorization': `Bearer ${yourAccessToken}`
-      //   },
-      //   body: submitData
-      // });
-
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1500));
-
-      alert('Item posted successfully!');
-      // Redirect to listings page
-      window.location.href = '/listings';
-    } catch (error) {
-      console.error('Error posting item:', error);
-      alert('Failed to post item. Please try again.');
+      const response = await listingsAPI.createListing(submitData);
+      setSuccess('Item posted successfully!');
+      
+      // Redirect to listings page after 1 second
+      setTimeout(() => {
+        window.location.href = '/listings';
+      }, 1000);
+    } catch (err: any) {
+      console.error('Error posting item:', err);
+      setError(err.message || 'Failed to post item. Please try again.');
     } finally {
       setIsSubmitting(false);
     }
@@ -147,6 +161,20 @@ export default function PostItemPage() {
 
           <CardContent className="p-6">
             <div className="space-y-6">
+              {/* Error Message */}
+              {error && (
+                <div className="p-4 border-l-4 border-red-500 bg-red-50 text-red-700">
+                  <p className="font-medium">{error}</p>
+                </div>
+              )}
+
+              {/* Success Message */}
+              {success && (
+                <div className="p-4 border-l-4 border-green-500 bg-green-50 text-green-700">
+                  <p className="font-medium">{success}</p>
+                </div>
+              )}
+
               {/* Images Upload */}
               <div className="space-y-3">
                 <Label className="text-white font-medium text-lg">

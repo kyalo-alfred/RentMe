@@ -497,9 +497,11 @@ export default function ListingsPage() {
   const categories = ['all', 'Electronics', 'Tools', 'Outdoor', 'Sports', 'Events'];
 
   // Extract unique locations from listings
-  const locations = ['all', ...Array.from(new Set(listings.map(l => l.location)))];
+  const locations = listings && listings.length > 0 
+    ? ['all', ...Array.from(new Set(listings.map(l => l.location)))]
+    : ['all'];
 
-  const filteredListings = listings.filter(listing => {
+  const filteredListings = (listings || []).filter(listing => {
     const matchesSearch = listing.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       listing.location.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesCategory = selectedCategory === 'all' || listing.category === selectedCategory;

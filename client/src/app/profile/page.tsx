@@ -227,7 +227,7 @@ export default function AccountPage() {
         <div className="grid lg:grid-cols-4 gap-6">
           {/* Sidebar */}
           <div className="lg:col-span-1">
-            <Card className="border-2 border-[#ffaa1d] shadow-none bg-black">
+            <Card className="border-0 border-[#ffaa1d] shadow-none bg-black">
               <CardContent className="p-0">
                 {/* Profile Summary */}
                 <div className="p-6 border-b border-[#ffaa1d]">
@@ -246,7 +246,7 @@ export default function AccountPage() {
                 <nav className="p-4">
                   <button
                     onClick={() => setActiveTab('profile')}
-                    className={`w-full flex items-center gap-3 px-4 py-3 rounded transition-colors ${activeTab === 'profile'
+                    className={`w-full flex items-center gap-3 px-4 py-3 rounded-full transition-colors ${activeTab === 'profile'
                       ? 'bg-[#ffaa1d] text-gray-900'
                       : 'text-[#ffaa1d] hover:bg-gray-800'
                       }`}
@@ -257,7 +257,7 @@ export default function AccountPage() {
 
                   <button
                     onClick={() => setActiveTab('listings')}
-                    className={`w-full flex items-center gap-3 px-4 py-3 rounded transition-colors ${activeTab === 'listings'
+                    className={`w-full flex items-center gap-3 px-4 py-3 rounded-full transition-colors ${activeTab === 'listings'
                       ? 'bg-[#ffaa1d] text-gray-900'
                       : 'text-[#ffaa1d] hover:bg-gray-800'
                       }`}
@@ -268,7 +268,7 @@ export default function AccountPage() {
 
                   <button
                     onClick={() => setActiveTab('settings')}
-                    className={`w-full flex items-center gap-3 px-4 py-3 rounded transition-colors ${activeTab === 'settings'
+                    className={`w-full flex items-center gap-3 px-4 py-3 rounded-full transition-colors ${activeTab === 'settings'
                       ? 'bg-[#ffaa1d] text-gray-900'
                       : 'text-[#ffaa1d] hover:bg-gray-800'
                       }`}
@@ -293,7 +293,7 @@ export default function AccountPage() {
           <div className="lg:col-span-3">
             {/* Profile Tab */}
             {activeTab === 'profile' && (
-              <Card className="border-2 border-[#ffaa1d] shadow-none bg-black">
+              <Card className="border-0 shadow-none bg-black">
                 <CardHeader className="border-b border-[#ffaa1d]">
                   <div className="flex items-center justify-between">
                     <div>
@@ -402,7 +402,7 @@ export default function AccountPage() {
                   </div>
 
                   {/* Stats */}
-                  <div className="grid grid-cols-3 gap-4 mt-6 pt-6 border-t border-[#ffaa1d]">
+                  <div className="grid grid-cols-3 gap-4 mt-6 pt-6 border-0">
                     <div className="text-center">
                       <div className="text-2xl font-bold text-[#ffaa1d]">{user.rating}</div>
                       <div className="text-sm text-gray-400">Rating</div>
@@ -432,7 +432,7 @@ export default function AccountPage() {
                       </CardDescription>
                     </div>
                     <Button className="bg-[#ffaa1d] text-gray-900 hover:bg-[#ff9500] font-bold">
-                      <a href="/post-item">Add New Item</a>
+                      <a href="/post-items">Add New Item</a>
                     </Button>
                   </div>
                 </CardHeader>
@@ -454,7 +454,7 @@ export default function AccountPage() {
                       <Package size={48} className="mx-auto mb-4 text-gray-400" />
                       <p className="text-gray-400 mb-4">You haven't posted any items yet</p>
                       <Button className="bg-[#ffaa1d] text-gray-900 hover:bg-[#ff9500] font-bold">
-                        <a href="/post-item">Post Your First Item</a>
+                        <a href="/post-items">Post Your First Item</a>
                       </Button>
                     </div>
                   ) : (
