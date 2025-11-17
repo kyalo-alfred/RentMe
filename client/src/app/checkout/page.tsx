@@ -28,8 +28,16 @@ export default function CourierPage() {
   const searchParams = useSearchParams();
   const listingId = searchParams.get('listingId');
   const listing = listings.find(item => item.id === Number(listingId));
+  const bookingId = searchParams.get('bookingId') ?? listingId ?? 'N/A';
 
-  const [couriers, setCouriers] = useState([]);
+  interface Courier {
+    id: number;
+    name: string;
+    display_name: string;
+    description: string;
+  }
+
+  const [couriers, setCouriers] = useState<Courier[]>([]);
   const [selectedCourierId, setSelectedCourierId] = useState('');
   const [pickupAddress, setPickupAddress] = useState('');
   const [deliveryAddress, setDeliveryAddress] = useState('');
@@ -167,11 +175,10 @@ export default function CourierPage() {
                       id="courier"
                       value={selectedCourierId}
                       onChange={(e) => setSelectedCourierId(e.target.value)}
-                      disabled={isLoading}
                       className="bg-gray-900 border-[#ffaa1d] text-white"
                     >
                       {couriers.map((courier) => (
-                        <option key={courier.id} value={courier.id}>
+                        <option key={courier.id} value={courier.id.toString()}>
                           {courier.display_name} - {courier.description}
                         </option>
                       ))}
@@ -232,96 +239,6 @@ export default function CourierPage() {
             </Card>
           </div>
         </div>
-    <div className="min-h-screen bg-gray-50 p-8">
-      <h1 className="text-3xl font-bold mb-6 text-center">Select Your Courier</h1>
-
-      <div className="max-w-4xl mx-auto grid md:grid-cols-2 gap-6">
-        {/* Order Summary */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Package className="w-5 h-5" />
-              Order Summary
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-2">
-              <p><span className="font-semibold">Item:</span> {listing.title}</p>
-              <p><span className="font-semibold">Price:</span> ${listing.price}</p>
-              <p><span className="font-semibold">Owner:</span> {listing.owner}</p>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Courier Selection */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Truck className="w-5 h-5" />
-              Courier Service
-            </CardTitle>
-            <CardDescription>Choose a delivery service</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            {error && <p className="text-red-600">{error}</p>}
-
-            {isLoadingCouriers ? (
-              <p>Loading couriers...</p>
-            ) : (
-              <Select
-                value={selectedCourierId}
-                onChange={e => setSelectedCourierId(e.target.value)}
-                disabled={isLoading}
-              >
-                {couriers.map(c => (
-                  <option key={c.id} value={c.id}>{c.display_name} - {c.description}</option>
-                ))}
-              </Select>
-            )}
-
-            {selectedCourier && (
-              <div className="bg-gray-50 p-2 rounded">
-                <p className="font-semibold">{selectedCourier.display_name}</p>
-                <p className="text-sm text-gray-600">{selectedCourier.description}</p>
-              </div>
-            )}
-
-            {/* Required Addresses */}
-            <div className="space-y-2">
-              <Label htmlFor="pickup" className="flex items-center gap-2">
-                <MapPin className="w-4 h-4" />
-                Pickup Address
-              </Label>
-              <Input
-                id="pickup"
-                placeholder="Enter pickup address"
-                value={pickupAddress}
-                onChange={e => setPickupAddress(e.target.value)}
-                disabled={isLoading}
-              />
-
-              <Label htmlFor="delivery" className="flex items-center gap-2">
-                <MapPin className="w-4 h-4" />
-                Delivery Address
-              </Label>
-              <Input
-                id="delivery"
-                placeholder="Enter delivery address"
-                value={deliveryAddress}
-                onChange={e => setDeliveryAddress(e.target.value)}
-                disabled={isLoading}
-              />
-            </div>
-
-            <Button
-              onClick={handleAssignCourier}
-              disabled={isLoading}
-              className="w-full"
-            >
-              {isLoading ? 'Assigning...' : 'Confirm & Assign Courier'}
-            </Button>
-          </CardContent>
-        </Card>
       </div>
     </div>
   );

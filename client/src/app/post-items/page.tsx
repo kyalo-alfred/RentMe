@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -9,6 +10,8 @@ import { X, Upload, DollarSign, Calendar, MapPin, Tag } from 'lucide-react';
 import { listingsAPI } from '@/lib/api';
 
 export default function PostItemPage() {
+  const router = useRouter();
+  const { user } = useAuth();
   const [formData, setFormData] = useState({
     title: '',
     description: '',
@@ -21,7 +24,7 @@ export default function PostItemPage() {
     availableTo: ''
   });
 
-  const [images, setImages] = useState([]);
+  const [images, setImages] = useState<Array<{ file: File; preview: string }>>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
@@ -54,23 +57,23 @@ export default function PostItemPage() {
     { value: 'month', label: 'Per Month' }
   ];
 
-  const handleChange = (field, value) => {
+  const handleChange = (field: string, value: string) => {
     setFormData({
       ...formData,
       [field]: value
     });
   };
 
-  const handleImageUpload = (e) => {
-    const files = Array.from(e.target.files);
-    const newImages = files.map(file => ({
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []);
+    const newImages = files.map((file: File) => ({
       file,
       preview: URL.createObjectURL(file)
     }));
     setImages([...images, ...newImages].slice(0, 5)); // Max 5 images
   };
 
-  const removeImage = (index) => {
+  const removeImage = (index: number) => {
     const newImages = images.filter((_, i) => i !== index);
     setImages(newImages);
   };
@@ -91,6 +94,14 @@ export default function PostItemPage() {
     const token = typeof window !== 'undefined' ? localStorage.getItem('access_token') : null;
     if (!token) {
       setError('Please sign in to post an item');
+      setIsSubmitting(false);
+      return;
+    }
+
+    // Check if user is authenticated
+    if (!user) {
+      alert('Please login to post an item');
+      router.push('/signin');
       setIsSubmitting(false);
       return;
     }
