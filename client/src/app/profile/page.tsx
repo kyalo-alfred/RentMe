@@ -209,7 +209,7 @@ export default function AccountPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#FFB700]">
+    <div className="min-h-screen bg-black bg-dark-black">
       {/* Header */}
       <header className="sticky top-0 z-10">
         <div className="container mx-auto px-4 py-6">

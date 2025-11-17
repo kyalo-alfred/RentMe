@@ -1,16 +1,38 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import Link from 'next/Link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { Search, SlidersHorizontal, MapPin, Calendar, DollarSign, X, Phone, Mail, User } from 'lucide-react';
+import { ShoppingCart, Search, SlidersHorizontal, MapPin, Calendar, DollarSign, X, Phone, Mail, User, UserCircle } from 'lucide-react';
+import { listingsAPI } from '@/lib/api';
+import { Listing } from '@/types/listing';
+import {
+  SidebarProvider,
+  Sidebar,
+  SidebarContent,
+  SidebarGroup,
+  SidebarGroupLabel,
+  SidebarGroupContent,
+  SidebarHeader,
+  SidebarFooter,
+  SidebarTrigger,
+  SidebarInset,
+} from '@/components/ui/sidebar';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { Slider } from '@/components/ui/slider';
 
 export default function ListingsPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
+  const [selectedLocation, setSelectedLocation] = useState('all');
+  const [priceRange, setPriceRange] = useState([0, 20000]);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedListing, setSelectedListing] = useState<any>(null);
+  const [selectedListing, setSelectedListing] = useState<Listing | null>(null);
+  const [listings, setListings] = useState<Listing[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   // Rent modal state
   const [rentOpenForId, setRentOpenForId] = useState<number | null>(null);
@@ -22,8 +44,30 @@ export default function ListingsPage() {
 
   const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api';
 
-  // Mock data - replace with API call to Django backend
-  const listings = [
+  // Fetch listings from API
+  useEffect(() => {
+    const fetchListings = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        // const response = await listingsAPI.getListings({ is_active: true });
+        // setListings(response.results);
+
+        // Using mock data for development
+        setListings(mockListings);
+      } catch (err: any) {
+        setError(err.message || 'Failed to load listings');
+        console.error('Error fetching listings:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchListings();
+  }, []);
+
+  // Mock data for fallback (will be removed once API works)
+  const mockListings = [
     {
       id: 1,
       title: 'Professional DSLR Camera',
@@ -452,11 +496,16 @@ export default function ListingsPage() {
 
   const categories = ['all', 'Electronics', 'Tools', 'Outdoor', 'Sports', 'Events'];
 
+  // Extract unique locations from listings
+  const locations = ['all', ...Array.from(new Set(listings.map(l => l.location)))];
+
   const filteredListings = listings.filter(listing => {
     const matchesSearch = listing.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       listing.location.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesCategory = selectedCategory === 'all' || listing.category === selectedCategory;
-    return matchesSearch && matchesCategory;
+    const matchesLocation = selectedLocation === 'all' || listing.location === selectedLocation;
+    const matchesPrice = listing.price >= priceRange[0] && listing.price <= priceRange[1];
+    return matchesSearch && matchesCategory && matchesLocation && matchesPrice;
   });
 
   const resetRentState = () => {
@@ -529,350 +578,434 @@ export default function ListingsPage() {
     }
   };
 
+  const handleProfileClick = () => {
+    const token = typeof window !== 'undefined' ? localStorage.getItem('access_token') : null;
+    if (!token) {
+      window.location.href = '/signup';
+    } else {
+      window.location.href = '/profile';
+    }
+  };
+
   return (
-    <div className="min-h-screen bg-white">
-      {/* Header */}
-      <header className="border-b border-black sticky top-0 bg-white z-10">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <a href="/listings" className="text-2xl font-bold text-black">RentMe</a>
-            <div className="flex items-center gap-4">
-              <Button variant="outline" className="border-black text-black hover:bg-black hover:text-white">
-                <a href="/post-items">Post Item</a>
-              </Button>
-              <Button variant="outline" className="border-black text-black hover:bg-black hover:text-white">
-                <a href="/profile">Profile</a>
-              </Button>
-            </div>
-          </div>
-        </div>
-      </header>
+    <SidebarProvider defaultOpen={true}>
+      <div className="flex min-h-screen w-full bg-white">
+        {/* Sidebar */}
+        <Sidebar side="left" collapsible="offcanvas">
 
-      {/* Search and Filters Section */}
-      <div className="border-b border-black">
-        <div className="container mx-auto px-4 py-6">
-          <div className="flex flex-col md:flex-row gap-4">
-            {/* Search Bar */}
-            <div className="flex-1 relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
-              <Input
-                type="text"
-                placeholder="Search items or locations..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10 border-black focus:ring-black"
-              />
-            </div>
+          <SidebarContent>
+            {/* Search */}
+            <SidebarGroup>
+              <SidebarGroupContent>
+              </SidebarGroupContent>
+            </SidebarGroup>
 
-            {/* Filter Button */}
-            <Button variant="outline" className="border-black text-black hover:bg-black hover:text-white">
-              <SlidersHorizontal size={20} className="mr-2" />
-              Filters
-            </Button>
-          </div>
+            {/* Categories */}
+            <SidebarGroup>
+              <SidebarGroupLabel className='text-black font-bold'>Categories</SidebarGroupLabel>
+              <SidebarGroupContent>
+                <div className="flex flex-col gap-1 px-2">
+                  {categories.map((category) => (
+                    <button
+                      key={category}
+                      onClick={() => setSelectedCategory(category)}
+                      className={`px-3 py-2 rounded-md text-left text-sm transition-colors ${selectedCategory === category
+                        ? 'bg-[#FFB700] text-white'
+                        : 'hover:bg-gray-100'
+                        }`}
+                    >
+                      {category.charAt(0).toUpperCase() + category.slice(1)}
+                    </button>
+                  ))}
+                </div>
+              </SidebarGroupContent>
+            </SidebarGroup>
 
-          {/* Category Pills */}
-          <div className="flex gap-2 mt-4 overflow-x-auto pb-2">
-            {categories.map((category) => (
-              <button
-                key={category}
-                onClick={() => setSelectedCategory(category)}
-                className={`px-4 py-2 rounded-full border-2 whitespace-nowrap transition-colors ${selectedCategory === category
-                  ? 'bg-black text-white border-black'
-                  : 'bg-white text-black border-black hover:bg-gray-100'
-                  }`}
-              >
-                {category.charAt(0).toUpperCase() + category.slice(1)}
-              </button>
-            ))}
-          </div>
-        </div>
-      </div>
+            {/* Locations */}
+            <SidebarGroup>
+              <SidebarGroupLabel className='font-bold text-black'>
+                Locations
+              </SidebarGroupLabel>
+              <SidebarGroupContent>
+                <ScrollArea className="h-48">
+                  <div className="flex flex-col gap-1 px-2">
+                    {locations.map((location) => (
+                      <button
+                        key={location}
+                        onClick={() => setSelectedLocation(location)}
+                        className={`px-3 py-2 rounded-md text-left text-sm transition-colors ${selectedLocation === location
+                          ? 'bg-[#FFB700] text-white'
+                          : 'hover:bg-gray-100'
+                          }`}
+                      >
+                        {location === 'all' ? 'All Locations' : location}
+                      </button>
+                    ))}
+                  </div>
+                </ScrollArea>
+              </SidebarGroupContent>
+            </SidebarGroup>
 
-      {/* Listings Grid */}
-      <div className="container mx-auto px-4 py-8">
-        <div className="flex items-center justify-between mb-6">
-          <h2 className="text-2xl font-bold">
-            {filteredListings.length} {filteredListings.length === 1 ? 'Item' : 'Items'} Available
-          </h2>
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {filteredListings.map((listing) => (
-            <Card
-              key={listing.id}
-              className="border-2 border-black bg-white shadow-none hover:shadow-lg transition-shadow cursor-pointer"
-            >
-              <CardContent className="p-0">
-                {/* Image */}
-                <div className="relative h-48 overflow-hidden">
-                  <img
-                    src={listing.image}
-                    alt={listing.title}
-                    className="w-full h-full object-cover"
+            {/* Price Range */}
+            <SidebarGroup>
+              <SidebarGroupLabel>Price Range (KES)</SidebarGroupLabel>
+              <SidebarGroupContent>
+                <div className="px-4 py-2">
+                  <Slider
+                    min={0}
+                    max={20000}
+                    step={500}
+                    value={priceRange}
+                    onValueChange={setPriceRange}
+                    className="mb-2"
                   />
-                  <div className="absolute top-2 right-2 bg-white px-2 py-1 border border-black text-xs font-bold">{listing.category}</div>
+                  <div className="flex justify-between text-xs text-gray-600">
+                    <span>{priceRange[0]} KES</span>
+                    <span>{priceRange[1]} KES</span>
+                  </div>
+                </div>
+              </SidebarGroupContent>
+            </SidebarGroup>
+          </SidebarContent>
+
+          <SidebarFooter className="border-t border-black p-4">
+            <Button
+              onClick={handleProfileClick}
+              variant="outline"
+              className="w-full border-black text-black hover:bg-black hover:text-white"
+            >
+              <UserCircle size={18} className="mr-2" />
+              Profile
+            </Button>
+          </SidebarFooter>
+        </Sidebar>
+
+        {/* Main Content */}
+        <SidebarInset className="flex-1">
+          {/* Header */}
+          <header className="sticky top-0 bg-[#FFB700] z-10">
+            <div className="container mx-auto px-4 py-4">
+              <div className="flex items-center justify-between gap-4">
+                <div className="flex items-center gap-4">
+                  <SidebarTrigger />
+                  <a href="/listings" className="text-2xl font-bold text-black">RentMe</a>
+                </div>
+                <div className="relative px-4 w-full">
+                  <Search className="absolute left-6 top-1/2 transform -translate-y-1/2 text-gray-400" size={16} />
+                  <Input
+                    type="text"
+                    placeholder="Search items..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="pl-8 border-black h-12 bg-white"
+                  />
                 </div>
 
-                {/* Content */}
-                <div className="p-4">
-                  <h3 className="font-bold text-lg mb-2 line-clamp-1">{listing.title}</h3>
+                <div className="flex items-center gap-4">
+                  <Button variant="outline" className="text-black hover:bg-[#FFB700] hover:text-white">
+                    <a href="/post-items">Post Item</a>
+                  </Button>
+                  <Button variant="outline" className='text-black hover:bg-[#FFB700] hover:text-white'>
+                    <Link href="/cart">
+                      <ShoppingCart />
+                    </Link>
 
-                  <div className="flex items-center gap-1 text-sm text-gray-600 mb-2">
-                    <MapPin size={14} />
-                    <span className="line-clamp-1">{listing.location}</span>
-                  </div>
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </header>
 
-                  <div className="flex items-center justify-between mb-3">
-                    <div className="flex items-center gap-1">
-                      <DollarSign size={18} className="font-bold" />
-                      <span className="text-xl font-bold">{listing.price}</span>
-                      <span className="text-sm text-gray-600">/{listing.period}</span>
+          {/* Listings Grid */}
+          <div className="container mx-auto px-4 py-8 bg-[#FFB700]">
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              {filteredListings.map((listing) => (
+                <Card
+                  key={listing.id}
+                  className="bg-white shadow-none hover:shadow-lg transition-shadow cursor-pointer"
+                >
+                  <CardContent className="p-0">
+                    {/* Image */}
+                    <div className="relative h-48 overflow-hidden">
+                      <img
+                        src={listing.image}
+                        alt={listing.title}
+                        className="w-full h-full object-cover"
+                      />
+                      <div className="absolute top-2 right-2 bg-white px-2 py-1 border border-black text-xs font-bold">{listing.category}</div>
                     </div>
-                    <div className="flex items-center gap-1">
-                      <span className="text-sm">★</span>
-                      <span className="text-sm font-bold">{listing.rating}</span>
+
+                    {/* Content */}
+                    <div className="p-4">
+                      <h3 className="font-bold text-lg mb-2 line-clamp-1">{listing.title}</h3>
+
+                      <div className="flex items-center gap-1 text-sm text-gray-600 mb-2">
+                        <MapPin size={14} />
+                        <span className="line-clamp-1">{listing.location}</span>
+                      </div>
+
+                      <div className="flex items-center justify-between mb-3">
+                        <div className="flex items-center gap-1">
+                          <p>KES</p>
+                          <span className="text-xl font-bold">{listing.price}</span>
+                          <span className="text-sm text-gray-600">/{listing.price_period}</span>
+                        </div>
+                        {listing.rating && (
+                          <div className="flex items-center gap-1">
+                            <span className="text-sm">★</span>
+                            <span className="text-sm font-bold">{listing.rating}</span>
+                          </div>
+                        )}
+                      </div>
+
+                      <div className="text-sm text-gray-600 mb-3">
+                        Owner: <span className="font-medium text-black">{typeof listing.owner === 'object' ? `${listing.owner.first_name} ${listing.owner.last_name}`.trim() || listing.owner.username : listing.owner}</span>
+                      </div>
+                      <div className="grid grid-cols-2 gap-2">
+
+                        <Button
+                          variant="outline"
+                          className="w-full text-black hover:bg-[#FFB700] hover:text-white:width,"
+                          onClick={() => {
+                            setSelectedListing(listing);
+                            setIsModalOpen(true);
+                          }}
+                        >
+                          View
+                        </Button>
+                        <Button
+                          variant='outline'
+                          className="w-full bg-white text-black hover:bg-[#FFB700]"
+                          onClick={() => {
+                            setRentOpenForId(listing.id);
+                            resetRentState();
+                          }}
+                        >
+                          Rent
+                        </Button>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+
+            {filteredListings.length === 0 && (
+              <div className="text-center py-20">
+                <h3 className="text-2xl font-bold mb-2">No items found</h3>
+                <p className="text-gray-600">Try adjusting your search or filters</p>
+              </div>
+            )}
+          </div>
+
+          {/* Modals */}
+          {/* Item Details Modal */}
+          {isModalOpen && selectedListing && (
+            <div className="fixed inset-0 bg-black/30 flex items-center justify-center z-50 p-4">
+              <div className="bg-white max-w-2xl w-full max-h-[90vh] flex flex-col rounded-md">
+                {/* Modal Header */}
+                <div className="bg-white  p-4 flex items-center justify-between flex-shrink-0">
+                  <h2 className="text-2xl font-bold text-black">Item Details</h2>
+                  <button
+                    onClick={() => setIsModalOpen(false)}
+                    className="p-2 hover:bg-gray-100 rounded-full transition-colors text-black"
+                  >
+                    <X size={24} />
+                  </button>
+                </div>
+
+                {/* Modal Content */}
+                <div className="p-6 overflow-y-auto">
+                  {/* Image */}
+                  <div className="relative h-64 mb-6 overflow-hidden rounded-lg">
+                    <img
+                      src={selectedListing.image}
+                      alt={selectedListing.title}
+                      className="w-full h-full object-cover"
+                    />
+                    <div className="absolute top-2 right-2 bg-white px-3 py-1 text-sm font-bold border border-black">
+                      {selectedListing.category}
                     </div>
                   </div>
 
-                  <div className="text-sm text-gray-600 mb-3">
-                    Owner: <span className="font-medium text-black">{listing.owner}</span>
+                  {/* Title and Rating */}
+                  <div className="flex items-start justify-between mb-4">
+                    <h3 className="text-2xl font-bold flex-1 text-black">{selectedListing.title}</h3>
+                    {selectedListing.rating && (
+                      <div className="flex items-center gap-1 ml-4">
+                        <span className="text-lg">★</span>
+                        <span className="text-lg font-bold text-black">{selectedListing.rating}</span>
+                      </div>
+                    )}
                   </div>
-                  <div className="grid grid-cols-2 gap-2">
+
+                  {/* Price */}
+                  <div className="mb-6 p-4 border-2 border-black bg-white rounded-lg">
+                    <div className="flex items-center gap-2">
+                      <DollarSign size={24} />
+                      <span className="text-3xl font-bold">{selectedListing.price} KES</span>
+                      <span className="text-xl text-gray-600">/ {selectedListing.price_period}</span>
+                    </div>
+                  </div>
+
+                  {/* Location */}
+                  <div className="mb-6">
+                    <div className="flex items-center gap-2 text-gray-700">
+                      <MapPin size={20} />
+                      <span className="text-lg text-black">{selectedListing.location}</span>
+                    </div>
+                  </div>
+
+                  {/* Description */}
+                  <div className="mb-6">
+                    <h4 className="font-bold text-lg mb-2 text-black">Description</h4>
+                    <p className="text-gray-700">
+                      {selectedListing.description || 'No description available for this item.'}
+                    </p>
+                  </div>
+
+                  {/* Owner Information */}
+                  <div className="border-2 border-black p-4 mb-6 rounded-lg bg-white">
+                    <h4 className="font-bold text-lg mb-4 text-black">Contact Owner</h4>
+
+                    <div className="space-y-3">
+                      {/* Owner Name */}
+                      <div className="flex items-center gap-3">
+                        <User size={20} />
+                        <div>
+                          <p className="text-sm text-gray-600">Owner</p>
+                          <p className="font-bold text-black">{typeof selectedListing.owner === 'object' ? `${selectedListing.owner.first_name} ${selectedListing.owner.last_name}`.trim() || selectedListing.owner.username : selectedListing.owner}</p>
+                        </div>
+                      </div>
+
+                      {/* Phone */}
+                      {selectedListing.phone && (
+                        <div className="flex items-center gap-3">
+                          <Phone size={20} />
+                          <div>
+                            <p className="text-sm text-gray-600">Phone</p>
+                            <a
+                              href={`tel:${selectedListing.phone}`}
+                              className="font-bold text-black hover:text-black hover:underline transition-colors"
+                            >
+                              {selectedListing.phone}
+                            </a>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Email */}
+                      {(typeof selectedListing.owner === 'object' && selectedListing.owner.email) && (
+                        <div className="flex items-center gap-3">
+                          <Mail size={20} />
+                          <div>
+                            <p className="text-sm text-gray-600">Email</p>
+                            <a
+                              href={`mailto:${typeof selectedListing.owner === 'object' ? selectedListing.owner.email : ''}`}
+                              className="font-bold text-black hover:text-black hover:underline transition-colors"
+                            >
+                              {typeof selectedListing.owner === 'object' ? selectedListing.owner.email : ''}
+                            </a>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Action Buttons */}
+                  <div className="flex gap-4">
                     <Button
                       variant="outline"
-                      className="w-full border-black text-black hover:bg-black hover:text-white"
+                      className="flex-1 border-black text-black hover:bg-black hover:text-white"
                       onClick={() => {
-                        setSelectedListing(listing);
-                        setIsModalOpen(true);
+                        if (selectedListing.phone) {
+                          window.location.href = `tel:${selectedListing.phone}`;
+                        }
                       }}
                     >
-                      View
+                      <Phone size={18} className="mr-2" />
+                      Call Owner
                     </Button>
                     <Button
-                      className="w-full bg-black text-white hover:bg-gray-800"
+                      variant="outline"
+                      className="flex-1 border-black text-black hover:bg-black hover:text-white"
                       onClick={() => {
-                        setRentOpenForId(listing.id);
-                        resetRentState();
+                        const email = typeof selectedListing.owner === 'object' ? selectedListing.owner.email : null;
+                        if (email) {
+                          window.location.href = `mailto:${email}`;
+                        }
                       }}
                     >
-                      Rent
+                      <Mail size={18} className="mr-2" />
+                      Send Email
                     </Button>
                   </div>
                 </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-
-        {filteredListings.length === 0 && (
-          <div className="text-center py-20">
-            <h3 className="text-2xl font-bold mb-2">No items found</h3>
-            <p className="text-gray-600">Try adjusting your search or filters</p>
-          </div>
-        )}
-      </div>
-
-      {/* Item Details Modal */}
-      {isModalOpen && selectedListing && (
-        <div className="fixed inset-0 bg-black/30 flex items-center justify-center z-50 p-4">
-          <div className="bg-white border-2 border-black max-w-2xl w-full max-h-[90vh] flex flex-col">
-            {/* Modal Header */}
-            <div className="bg-white border-b-2 border-black p-4 flex items-center justify-between flex-shrink-0">
-              <h2 className="text-2xl font-bold text-black">Item Details</h2>
-              <button
-                onClick={() => setIsModalOpen(false)}
-                className="p-2 hover:bg-gray-100 rounded-full transition-colors text-black"
-              >
-                <X size={24} />
-              </button>
+              </div>
             </div>
+          )}
 
-            {/* Modal Content */}
-            <div className="p-6 overflow-y-auto">
-              {/* Image */}
-              <div className="relative h-64 mb-6 overflow-hidden rounded-lg">
-                <img
-                  src={selectedListing.image}
-                  alt={selectedListing.title}
-                  className="w-full h-full object-cover"
-                />
-                <div className="absolute top-2 right-2 bg-white px-3 py-1 text-sm font-bold border border-black">
-                  {selectedListing.category}
-                </div>
-              </div>
+          {/* Rent Modal (simple inline overlay) */}
+          {rentOpenForId !== null && (
+            <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+              <div className="bg-white w-full max-w-md p-5">
+                <h3 className="text-xl font-bold mb-1">Rent Item</h3>
+                <p className="text-sm text-gray-600 mb-4">Select dates to rent this item.</p>
 
-              {/* Title and Rating */}
-              <div className="flex items-start justify-between mb-4">
-                <h3 className="text-2xl font-bold flex-1 text-black">{selectedListing.title}</h3>
-                <div className="flex items-center gap-1 ml-4">
-                  <span className="text-lg">★</span>
-                  <span className="text-lg font-bold text-black">{selectedListing.rating}</span>
-                </div>
-              </div>
-
-              {/* Price */}
-              <div className="mb-6 p-4 border-2 border-black bg-white rounded-lg">
-                <div className="flex items-center gap-2">
-                  <DollarSign size={24} />
-                  <span className="text-3xl font-bold">{selectedListing.price} KES</span>
-                  <span className="text-xl text-gray-600">/ {selectedListing.period}</span>
-                </div>
-              </div>
-
-              {/* Location */}
-              <div className="mb-6">
-                <div className="flex items-center gap-2 text-gray-700">
-                  <MapPin size={20} />
-                  <span className="text-lg text-black">{selectedListing.location}</span>
-                </div>
-              </div>
-
-              {/* Description */}
-              <div className="mb-6">
-                <h4 className="font-bold text-lg mb-2 text-black">Description</h4>
-                <p className="text-gray-700">
-                  {selectedListing.description || 'No description available for this item.'}
-                </p>
-              </div>
-
-              {/* Owner Information */}
-              <div className="border-2 border-black p-4 mb-6 rounded-lg bg-white">
-                <h4 className="font-bold text-lg mb-4 text-black">Contact Owner</h4>
-
-                <div className="space-y-3">
-                  {/* Owner Name */}
-                  <div className="flex items-center gap-3">
-                    <User size={20} />
-                    <div>
-                      <p className="text-sm text-gray-600">Owner</p>
-                      <p className="font-bold text-black">{selectedListing.owner}</p>
-                    </div>
+                {rentError && (
+                  <div className="mb-3 p-2 border border-red-300 bg-red-50 text-red-700 text-sm">
+                    {rentError}
                   </div>
+                )}
+                {rentSuccess && (
+                  <div className="mb-3 p-2 border border-green-300 bg-green-50 text-green-700 text-sm">
+                    {rentSuccess}
+                  </div>
+                )}
 
-                  {/* Phone */}
-                  {selectedListing.phone && (
-                    <div className="flex items-center gap-3">
-                      <Phone size={20} />
-                      <div>
-                        <p className="text-sm text-gray-600">Phone</p>
-                        <a
-                          href={`tel:${selectedListing.phone}`}
-                          className="font-bold text-black hover:text-black hover:underline transition-colors"
-                        >
-                          {selectedListing.phone}
-                        </a>
-                      </div>
-                    </div>
-                  )}
+                <div className="grid grid-cols-1 gap-3 mb-4">
+                  <div>
+                    <label className="block text-sm font-medium mb-1">Start date</label>
+                    <Input
+                      type="date"
+                      value={startDate}
+                      onChange={(e) => setStartDate(e.target.value)}
+                      className="border-black"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium mb-1">End date</label>
+                    <Input
+                      type="date"
+                      value={endDate}
+                      onChange={(e) => setEndDate(e.target.value)}
+                      className="border-black"
+                    />
+                  </div>
+                </div>
 
-                  {/* Email */}
-                  {selectedListing.email && (
-                    <div className="flex items-center gap-3">
-                      <Mail size={20} />
-                      <div>
-                        <p className="text-sm text-gray-600">Email</p>
-                        <a
-                          href={`mailto:${selectedListing.email}`}
-                          className="font-bold text-black hover:text-black hover:underline transition-colors"
-                        >
-                          {selectedListing.email}
-                        </a>
-                      </div>
-                    </div>
-                  )}
+                <div className="flex gap-2">
+                  <Button
+                    className="bg-black text-white hover:bg-gray-800"
+                    disabled={rentLoading}
+                    onClick={() => handleRent(rentOpenForId!)}
+                  >
+                    {rentLoading ? 'Processing...' : 'Confirm Rent'}
+                  </Button>
+                  <Button
+                    variant="outline"
+                    className="border-black text-black hover:bg-black hover:text-white"
+                    onClick={() => setRentOpenForId(null)}
+                  >
+                    Cancel
+                  </Button>
                 </div>
               </div>
-
-              {/* Action Buttons */}
-              <div className="flex gap-4">
-                <Button
-                  variant="outline"
-                  className="flex-1 border-black text-black hover:bg-black hover:text-white"
-                  onClick={() => {
-                    if (selectedListing.phone) {
-                      window.location.href = `tel:${selectedListing.phone}`;
-                    }
-                  }}
-                >
-                  <Phone size={18} className="mr-2" />
-                  Call Owner
-                </Button>
-                <Button
-                  variant="outline"
-                  className="flex-1 border-black text-black hover:bg-black hover:text-white"
-                  onClick={() => {
-                    if (selectedListing.email) {
-                      window.location.href = `mailto:${selectedListing.email}`;
-                    }
-                  }}
-                >
-                  <Mail size={18} className="mr-2" />
-                  Send Email
-                </Button>
-              </div>
             </div>
-          </div>
-        </div>
-      )}
-      {/* Rent Modal (simple inline overlay) */}
-      {rentOpenForId !== null && (
-        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-          <div className="bg-white border-2 border-black w-full max-w-md p-5">
-            <h3 className="text-xl font-bold mb-1">Rent Item</h3>
-            <p className="text-sm text-gray-600 mb-4">Select dates to rent this item.</p>
-
-            {rentError && (
-              <div className="mb-3 p-2 border border-red-300 bg-red-50 text-red-700 text-sm">
-                {rentError}
-              </div>
-            )}
-            {rentSuccess && (
-              <div className="mb-3 p-2 border border-green-300 bg-green-50 text-green-700 text-sm">
-                {rentSuccess}
-              </div>
-            )}
-
-            <div className="grid grid-cols-1 gap-3 mb-4">
-              <div>
-                <label className="block text-sm font-medium mb-1">Start date</label>
-                <Input
-                  type="date"
-                  value={startDate}
-                  onChange={(e) => setStartDate(e.target.value)}
-                  className="border-black"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium mb-1">End date</label>
-                <Input
-                  type="date"
-                  value={endDate}
-                  onChange={(e) => setEndDate(e.target.value)}
-                  className="border-black"
-                />
-              </div>
-            </div>
-
-            <div className="flex gap-2">
-              <Button
-                className="bg-black text-white hover:bg-gray-800"
-                disabled={rentLoading}
-                onClick={() => handleRent(rentOpenForId!)}
-              >
-                {rentLoading ? 'Processing...' : 'Confirm Rent'}
-              </Button>
-              <Button
-                variant="outline"
-                className="border-black text-black hover:bg-black hover:text-white"
-                onClick={() => setRentOpenForId(null)}
-              >
-                Cancel
-              </Button>
-            </div>
-          </div>
-        </div>
-      )}
-    </div>
+          )}
+        </SidebarInset>
+      </div>
+    </SidebarProvider>
   );
 }
