@@ -24,6 +24,9 @@ export interface Listing {
   is_active: boolean;
   created_at: string;
   updated_at: string;
+  // Optional fields that may not exist in all listings
+  rating?: number;
+  phone?: string;
 }
 
 export interface ListingsResponse {

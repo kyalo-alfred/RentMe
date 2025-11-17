@@ -21,7 +21,7 @@ class BookingViewSet(viewsets.ModelViewSet):
     queryset = Booking.objects.all()
     permission_classes = [IsAuthenticatedOrReadOnly]
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
-    filterset_fields = ['status', 'listing_id', 'renter']
+    filterset_fields = ['status', 'listing', 'renter']
     search_fields = ['renter__username', 'renter__email', 'notes']
     ordering_fields = ['created_at', 'start_date', 'total_price']
     ordering = ['-created_at']
@@ -132,7 +132,7 @@ class AvailabilityViewSet(viewsets.ModelViewSet):
     serializer_class = AvailabilitySerializer
     permission_classes = [IsAuthenticatedOrReadOnly]
     filter_backends = [DjangoFilterBackend, filters.OrderingFilter]
-    filterset_fields = ['listing_id']
+    filterset_fields = ['listing']
     ordering_fields = ['start_date', 'end_date']
     ordering = ['start_date']
 

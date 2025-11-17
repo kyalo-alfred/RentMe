@@ -27,10 +27,11 @@ class Booking(models.Model):
         related_name='bookings',
         help_text='User who is renting the item'
     )
-    # Note: Update this when listings app is created by Member 2
-    # listing = models.ForeignKey('listings.Listing', on_delete=models.CASCADE, related_name='bookings')
-    listing_id = models.IntegerField(
-        help_text='Temporary field - will be replaced with ForeignKey to Listing model'
+    listing = models.ForeignKey(
+        'listings.Listing',
+        on_delete=models.CASCADE,
+        related_name='bookings',
+        help_text='Listing being booked'
     )
 
     # Booking dates
@@ -58,7 +59,7 @@ class Booking(models.Model):
     class Meta:
         ordering = ['-created_at']
         indexes = [
-            models.Index(fields=['listing_id', 'start_date', 'end_date']),
+            models.Index(fields=['listing', 'start_date', 'end_date']),
             models.Index(fields=['renter', 'status']),
         ]
 
@@ -80,10 +81,11 @@ class Availability(models.Model):
     Availability model to track when listings are available/unavailable.
     This helps prevent double bookings and manage rental calendars.
     """
-    # Note: Update this when listings app is created by Member 2
-    # listing = models.ForeignKey('listings.Listing', on_delete=models.CASCADE, related_name='availability')
-    listing_id = models.IntegerField(
-        help_text='Temporary field - will be replaced with ForeignKey to Listing model'
+    listing = models.ForeignKey(
+        'listings.Listing',
+        on_delete=models.CASCADE,
+        related_name='availability',
+        help_text='Listing for which availability is tracked'
     )
 
     # Availability period
@@ -112,11 +114,11 @@ class Availability(models.Model):
         verbose_name_plural = 'Availabilities'
         ordering = ['start_date', 'end_date']
         indexes = [
-            models.Index(fields=['listing_id', 'start_date', 'end_date']),
+            models.Index(fields=['listing', 'start_date', 'end_date']),
         ]
 
     def __str__(self):
-        return f"Availability block for listing #{self.listing_id} - {self.start_date} to {self.end_date}"
+        return f"Availability block for {self.listing.title} - {self.start_date} to {self.end_date}"
 
     def overlaps_with(self, start_date, end_date):
         """Check if this availability block overlaps with given dates"""

@@ -9,6 +9,7 @@ class BookingSerializer(serializers.ModelSerializer):
     """Serializer for Booking model"""
     renter_username = serializers.CharField(source='renter.username', read_only=True)
     renter_email = serializers.EmailField(source='renter.email', read_only=True)
+    listing_title = serializers.CharField(source='listing.title', read_only=True)
     duration_days = serializers.IntegerField(read_only=True)
     is_active = serializers.BooleanField(read_only=True)
 
@@ -19,7 +20,8 @@ class BookingSerializer(serializers.ModelSerializer):
             'renter',
             'renter_username',
             'renter_email',
-            'listing_id',
+            'listing',
+            'listing_title',
             'start_date',
             'end_date',
             'status',
@@ -55,12 +57,14 @@ class BookingSerializer(serializers.ModelSerializer):
 class AvailabilitySerializer(serializers.ModelSerializer):
     """Serializer for Availability model"""
     booking_details = BookingSerializer(source='booking', read_only=True)
+    listing_title = serializers.CharField(source='listing.title', read_only=True)
 
     class Meta:
         model = Availability
         fields = [
             'id',
-            'listing_id',
+            'listing',
+            'listing_title',
             'start_date',
             'end_date',
             'booking',
@@ -89,7 +93,7 @@ class BookingCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Booking
         fields = [
-            'listing_id',
+            'listing',
             'start_date',
             'end_date',
             'notes',
@@ -97,13 +101,13 @@ class BookingCreateSerializer(serializers.ModelSerializer):
 
     def validate(self, data):
         """Check if listing is available for the requested dates"""
-        listing_id = data.get('listing_id')
+        listing = data.get('listing')
         start_date = data.get('start_date')
         end_date = data.get('end_date')
 
         # Check for overlapping bookings
         overlapping_bookings = Booking.objects.filter(
-            listing_id=listing_id,
+            listing=listing,
             status__in=['PENDING', 'CONFIRMED', 'ACTIVE'],
             start_date__lte=end_date,
             end_date__gte=start_date
@@ -116,7 +120,7 @@ class BookingCreateSerializer(serializers.ModelSerializer):
 
         # Check for availability blocks
         overlapping_availability = Availability.objects.filter(
-            listing_id=listing_id,
+            listing=listing,
             start_date__lte=end_date,
             end_date__gte=start_date
         )

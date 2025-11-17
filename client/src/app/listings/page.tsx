@@ -1,7 +1,7 @@
 ﻿"use client";
 
 import { useState, useEffect } from 'react';
-import Link from 'next/Link';
+import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -51,7 +51,9 @@ export default function ListingsPage() {
         setLoading(true);
         setError(null);
         const response = await listingsAPI.getListings({ is_active: true });
-        setListings(response.results);
+        // Handle both paginated (response.results) and non-paginated (direct array) responses
+        const listingsData = Array.isArray(response) ? response : (response.results || []);
+        setListings(listingsData);
 
         // // Using mock data for development
         // setListings(mockListings);
@@ -496,10 +498,10 @@ export default function ListingsPage() {
 
   const categories = ['all', 'Electronics', 'Tools', 'Outdoor', 'Sports', 'Events'];
 
-  // Extract unique locations from listings
-  const locations = ['all', ...Array.from(new Set(listings.map(l => l.location)))];
+  // Extract unique locations from listings (safely handle undefined/null)
+  const locations = ['all', ...Array.from(new Set((listings || []).map(l => l.location).filter(Boolean)))];
 
-  const filteredListings = listings.filter(listing => {
+  const filteredListings = (listings || []).filter(listing => {
     const matchesSearch = listing.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       listing.location.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesCategory = selectedCategory === 'all' || listing.category === selectedCategory;
@@ -730,9 +732,9 @@ export default function ListingsPage() {
                       {/* Image */}
                       <div className="relative h-48 overflow-hidden">
                         <img
-                          src={listing.image}
+                          src={listing.image || '/placeholder-image.jpg'}
                           alt={listing.title}
-                          className="w-full h-full object-cover"
+                          className="w-full h-48 object-cover"
                         />
                         <div className="absolute top-2 right-2 bg-white px-2 py-1 border border-black text-xs font-bold">{listing.category}</div>
                       </div>
@@ -822,7 +824,7 @@ export default function ListingsPage() {
                   {/* Image */}
                   <div className="relative h-64 mb-6 overflow-hidden rounded-lg">
                     <img
-                      src={selectedListing.image}
+                      src={selectedListing.image || '/placeholder-image.jpg'}
                       alt={selectedListing.title}
                       className="w-full h-full object-cover"
                     />

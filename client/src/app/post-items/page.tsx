@@ -1,13 +1,18 @@
 "use client";
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { X, Upload, DollarSign, Calendar, MapPin, Tag } from 'lucide-react';
+import { listingsAPI } from '@/lib/api';
+import { useAuth } from '@/contexts/AuthContext';
 
 export default function PostItemPage() {
+  const router = useRouter();
+  const { user } = useAuth();
   const [formData, setFormData] = useState({
     title: '',
     description: '',
@@ -20,7 +25,7 @@ export default function PostItemPage() {
     availableTo: ''
   });
 
-  const [images, setImages] = useState([]);
+  const [images, setImages] = useState<Array<{ file: File; preview: string }>>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const categories = [
@@ -51,23 +56,23 @@ export default function PostItemPage() {
     { value: 'month', label: 'Per Month' }
   ];
 
-  const handleChange = (field, value) => {
+  const handleChange = (field: string, value: string) => {
     setFormData({
       ...formData,
       [field]: value
     });
   };
 
-  const handleImageUpload = (e) => {
-    const files = Array.from(e.target.files);
-    const newImages = files.map(file => ({
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []);
+    const newImages = files.map((file: File) => ({
       file,
       preview: URL.createObjectURL(file)
     }));
     setImages([...images, ...newImages].slice(0, 5)); // Max 5 images
   };
 
-  const removeImage = (index) => {
+  const removeImage = (index: number) => {
     const newImages = images.filter((_, i) => i !== index);
     setImages(newImages);
   };
@@ -82,37 +87,52 @@ export default function PostItemPage() {
       return;
     }
 
+    // Check if user is authenticated
+    if (!user) {
+      alert('Please login to post an item');
+      router.push('/signin');
+      setIsSubmitting(false);
+      return;
+    }
+
     // Create FormData for file upload
     const submitData = new FormData();
-    Object.keys(formData).forEach(key => {
-      submitData.append(key, formData[key]);
-    });
 
-    images.forEach((image, index) => {
-      submitData.append(`image_${index}`, image.file);
-    });
+    // Map form fields to match Django API expectations
+    submitData.append('title', formData.title);
+    submitData.append('description', formData.description);
+    submitData.append('category', formData.category);
+    submitData.append('condition', formData.condition);
+    submitData.append('price', formData.price);
+    submitData.append('price_period', formData.pricePeriod);
+    submitData.append('location', formData.location);
+
+    // Add availability dates if provided
+    if (formData.availableFrom) {
+      submitData.append('available_from', formData.availableFrom);
+    }
+    if (formData.availableTo) {
+      submitData.append('available_to', formData.availableTo);
+    }
+
+    // Add the first image if available (backend expects single 'image' field)
+    if (images.length > 0) {
+      submitData.append('image', images[0].file);
+    }
 
     // Submit to Django backend
     try {
       console.log('Submitting item:', formData);
-      // Replace with actual API call:
-      // const response = await fetch('http://localhost:8000/api/items/', {
-      //   method: 'POST',
-      //   headers: {
-      //     'Authorization': `Bearer ${yourAccessToken}`
-      //   },
-      //   body: submitData
-      // });
+      const newListing = await listingsAPI.createListing(submitData);
 
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1500));
-
+      console.log('Item posted successfully:', newListing);
       alert('Item posted successfully!');
+
       // Redirect to listings page
-      window.location.href = '/listings';
-    } catch (error) {
+      router.push('/listings');
+    } catch (error: any) {
       console.error('Error posting item:', error);
-      alert('Failed to post item. Please try again.');
+      alert(error.message || 'Failed to post item. Please try again.');
     } finally {
       setIsSubmitting(false);
     }
