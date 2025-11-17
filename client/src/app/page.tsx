@@ -6,28 +6,30 @@ import { Card, CardContent, CardDescription, CardTitle } from "@/components/ui/c
 import useEmblaCarousel from "embla-carousel-react";
 import Autoplay from "embla-carousel-autoplay";
 import { EmblaCarouselType } from "embla-carousel";
+import { listingsAPI } from "@/lib/api";
+import { Listing } from "@/types/listing";
 
 const cards = [
   {
     title: "List your items",
-    subtitle: "Add items with title, description, category, daily price, and images.The entire setup process takes only a few minutes.",
-    art: null,
+    subtitle: "Add items with title, description, category, daily price, and images. The entire setup process takes only a few minutes.",
+    art: "https://images.unsplash.com/photo-1552664730-d307ca884978?w=400&h=300&fit=crop",
   },
   {
     title: "Manage Listings",
-    subtitle: "            Edit, update, or remove listings at any time. Availability updates automatically based on bookings.",
-    art: null,
+    subtitle: "Edit, update, or remove listings at any time. Availability updates automatically based on bookings.",
+    art: "https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=400&h=300&fit=crop",
   },
   {
     title: "Browse and Search",
-    subtitle: "            Explore items by category or search by keyword. Apply filters to find the exact item you need at the best price.",
-    art: null,
+    subtitle: "Explore items by category or search by keyword. Apply filters to find the exact item you need at the best price.",
+    art: "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=400&h=300&fit=crop",
   },
 
   {
     title: "Book and rent",
-    subtitle: "            Select rental dates and book available items instantly. Status updates keep both parties aligned in real time.",
-    art: null,
+    subtitle: "Select rental dates and book available items instantly. Status updates keep both parties aligned in real time.",
+    art: "https://images.unsplash.com/photo-1552664730-d307ca884978?w=400&h=300&fit=crop",
   },
 ];
 const reviews = [
@@ -156,39 +158,19 @@ export default function home() {
   const [index, setIndex] = useState(0);
   const cardWidth = 360; // matches min-w-[360px] below including gap
   const rowRef = useRef(null);
+  const heroAutoplay = useRef(
+    Autoplay({ delay: 4000, stopOnInteraction: false })
+  );
   const [heroEmbla, heroEmblaApi] = useEmblaCarousel(
     { loop: true, align: "start", skipSnaps: false, draggable: true },
-    []
+    [heroAutoplay.current]
   );
 
-  const [heroPrevBtnDisabled, setHeroPrevBtnDisabled] = useState(true);
-  const [heroNextBtnDisabled, setHeroNextBtnDisabled] = useState(true);
+  // State for hero carousel listings
+  const [heroListings, setHeroListings] = useState<Listing[]>([]);
+  const [heroListingsLoading, setHeroListingsLoading] = useState(true);
 
-  const onHeroNavButtonClick = React.useCallback((emblaApi: EmblaCarouselType) => {
-    const prevBtnDisabled = !emblaApi.canScrollPrev();
-    const nextBtnDisabled = !emblaApi.canScrollNext();
-    setHeroPrevBtnDisabled(prevBtnDisabled);
-    setHeroNextBtnDisabled(nextBtnDisabled);
-  }, []);
 
-  const onHeroPrevButtonClick = React.useCallback(() => {
-    if (!heroEmblaApi) return;
-    heroEmblaApi.scrollPrev();
-  }, [heroEmblaApi]);
-
-  const onHeroNextButtonClick = React.useCallback(() => {
-    if (!heroEmblaApi) return;
-    heroEmblaApi.scrollNext();
-  }, [heroEmblaApi]);
-
-  React.useEffect(() => {
-    if (!heroEmblaApi) return;
-
-    const onSelect = () => onHeroNavButtonClick(heroEmblaApi);
-    heroEmblaApi.on("select", onSelect);
-    heroEmblaApi.on("reInit", onSelect);
-    onHeroNavButtonClick(heroEmblaApi);
-  }, [heroEmblaApi, onHeroNavButtonClick]);
 
   // For hero dots
   const [heroSelectedIndex, setHeroSelectedIndex] = useState(0);
@@ -209,6 +191,121 @@ export default function home() {
     { loop: true, align: "start" },
     [autoplay.current]
   );
+
+  // Mock data for hero carousel
+  const mockHeroListings = [
+    {
+      id: 1,
+      title: 'Professional DSLR Camera',
+      price: 5000,
+      price_period: 'day',
+      location: 'Nairobi, Kenya',
+      image: 'https://images.unsplash.com/photo-1502920917128-1aa500764cbd?w=400&h=300&fit=crop',
+      category: 'Electronics',
+    },
+    {
+      id: 2,
+      title: 'Mountain Bike',
+      price: 3500,
+      price_period: 'day',
+      location: 'Parklands, Nairobi',
+      image: 'https://images.unsplash.com/photo-1576435728678-68d0fbf94e91?w=400&h=300&fit=crop',
+      category: 'Sports',
+    },
+    {
+      id: 3,
+      title: 'Camping Tent (4 Person)',
+      price: 3000,
+      price_period: 'day',
+      location: 'Karen, Nairobi',
+      image: 'https://images.unsplash.com/photo-1478131143081-80f7f84ca84d?w=400&h=300&fit=crop',
+      category: 'Outdoor',
+    },
+    {
+      id: 4,
+      title: 'Gaming Laptop',
+      price: 3500,
+      price_period: 'day',
+      location: 'Gigiri, Nairobi',
+      image: 'https://images.unsplash.com/photo-1603302576837-37561b2e2302?w=400&h=300&fit=crop',
+      category: 'Electronics',
+    },
+    {
+      id: 5,
+      title: 'PlayStation 5',
+      price: 2500,
+      price_period: 'day',
+      location: 'CBD, Nairobi',
+      image: 'https://images.unsplash.com/photo-1606813907291-d86efa9b94db?w=400&h=300&fit=crop',
+      category: 'Electronics',
+    },
+    {
+      id: 6,
+      title: 'Power Drill Set',
+      price: 1500,
+      price_period: 'day',
+      location: 'Westlands, Nairobi',
+      image: 'https://images.unsplash.com/photo-1504148455328-c376907d081c?w=400&h=300&fit=crop',
+      category: 'Tools',
+    },
+    {
+      id: 7,
+      title: 'Professional Drone',
+      price: 6000,
+      price_period: 'day',
+      location: 'Spring Valley, Nairobi',
+      image: 'https://images.unsplash.com/photo-1473968512647-3e447244af8f?w=400&h=300&fit=crop',
+      category: 'Electronics',
+    },
+    {
+      id: 8,
+      title: 'VR Headset',
+      price: 4000,
+      price_period: 'day',
+      location: 'Westlands, Nairobi',
+      image: 'https://images.unsplash.com/photo-1622979135225-d2ba269cf1ac?w=400&h=300&fit=crop',
+      category: 'Electronics',
+    },
+    {
+      id: 9,
+      title: 'Road Bike',
+      price: 3000,
+      price_period: 'day',
+      location: 'Muthaiga, Nairobi',
+      image: 'https://images.unsplash.com/photo-1485965120184-e220f721d03e?w=400&h=300&fit=crop',
+      category: 'Sports',
+    },
+    {
+      id: 10,
+      title: 'Projector & Screen',
+      price: 4000,
+      price_period: 'day',
+      location: 'Upperhill, Nairobi',
+      image: 'https://images.unsplash.com/photo-1560169897-fc0cdbdfa4d5?w=400&h=300&fit=crop',
+      category: 'Electronics',
+    },
+  ];
+
+  // Fetch hero listings from API
+  useEffect(() => {
+    const fetchHeroListings = async () => {
+      try {
+        setHeroListingsLoading(true);
+        // const response = await listingsAPI.getListings({ is_active: true, limit: 8 });
+        // setHeroListings(response.results.slice(0, 4)); // Get first 4 listings
+
+        // Using mock data for demo
+        setHeroListings(mockHeroListings);
+      } catch (err: any) {
+        console.error('Error fetching hero listings:', err);
+        setHeroListings([]); // Fallback to empty array on error
+      } finally {
+        setHeroListingsLoading(false);
+      }
+    };
+
+    fetchHeroListings();
+  }, []);
 
   useEffect(() => {
     const el = scroller.current;
@@ -272,127 +369,39 @@ export default function home() {
         <div className="relative w-full mb-12">
           <div className="embla overflow-hidden" ref={heroEmbla}>
             <div className="embla__container flex gap-6">
-              {/* Duplicated cards for infinite scroll effect - First set (copy of original) */}
-              {/* Card 1 */}
-              <Card className="flex-shrink-0 w-64 overflow-hidden border-0 p-0">
-                <div className="relative w-full h-64 bg-blue-600 flex items-center justify-center text-6xl">
-                  👜
-                  <div className="absolute top-3 right-3 bg-[#FFB700] text-black font-bold px-3 py-1 rounded-lg text-lg">$25/day</div>
+              {heroListingsLoading ? (
+                // Loading state
+                <div className="flex-shrink-0 w-64 h-72 flex items-center justify-center">
+                  <p className="text-black">Loading items...</p>
                 </div>
-                <CardContent className="pt-4 pb-4 px-4">
-                  <CardTitle>Designer Bag</CardTitle>
-                  <CardDescription>Perfect for travel</CardDescription>
-                </CardContent>
-              </Card>
-
-              {/* Card 2 */}
-              <Card className="flex-shrink-0 w-64 overflow-hidden border-0 p-0">
-                <div className="relative w-full h-64 bg-pink-400 flex items-center justify-center text-6xl">
-                  📚
-                  <div className="absolute top-3 right-3 bg-[#FFB700] text-black font-bold px-3 py-1 rounded-lg text-lg">$5/day</div>
+              ) : heroListings.length > 0 ? (
+                // Render fetched listings
+                heroListings.map((listing) => (
+                  <Card key={listing.id} className="flex-shrink-0 w-64 overflow-hidden border-0 p-0">
+                    <div className="relative w-full h-64 bg-gray-300 flex items-center justify-center">
+                      <img
+                        src={listing.image}
+                        alt={listing.title}
+                        className="w-full h-full object-cover"
+                      />
+                      <div className="absolute top-3 right-3 bg-[#FFB700] text-black font-bold px-3 py-1 rounded-lg text-lg">
+                        ${listing.price}/{listing.price_period || 'day'}
+                      </div>
+                    </div>
+                    <CardContent className="pt-4 pb-4 px-4">
+                      <CardTitle className="line-clamp-1">{listing.title}</CardTitle>
+                      <CardDescription className="line-clamp-1">{listing.location}</CardDescription>
+                    </CardContent>
+                  </Card>
+                ))
+              ) : (
+                // Empty state
+                <div className="flex-shrink-0 w-64 h-72 flex items-center justify-center">
+                  <p className="text-black">No items available</p>
                 </div>
-                <CardContent className="pt-4 pb-4 px-4">
-                  <CardTitle>Book Set</CardTitle>
-                  <CardDescription>Expand your collection</CardDescription>
-                </CardContent>
-              </Card>
-
-              {/* Card 3 */}
-              <Card className="flex-shrink-0 w-64 overflow-hidden border-0 p-0">
-                <div className="relative w-full h-64 bg-yellow-300 flex items-center justify-center text-6xl">
-                  🎮
-                  <div className="absolute top-3 right-3 bg-[#FFB700] text-black font-bold px-3 py-1 rounded-lg text-lg">$10/day</div>
-                </div>
-                <CardContent className="pt-4 pb-4 px-4">
-                  <CardTitle>Gaming Console</CardTitle>
-                  <CardDescription>Latest models available</CardDescription>
-                </CardContent>
-              </Card>
-
-              {/* Card 4 */}
-              <Card className="flex-shrink-0 w-64 overflow-hidden border-0 p-0">
-                <div className="relative w-full h-64 bg-green-500 flex items-center justify-center text-6xl">
-                  A mid bike
-                  <div className="absolute top-3 right-3 bg-[#FFB700] text-black font-bold px-3 py-1 rounded-lg text-lg">$15/day</div>
-                </div>
-                <CardContent className="pt-4 pb-4 px-4">
-                  <CardTitle>Mountain Bike</CardTitle>
-                  <CardDescription>Adventure awaits</CardDescription>
-                </CardContent>
-              </Card>
-
-              {/* Duplicated cards for infinite scroll effect - Second set (copy of original) */}
-              {/* Card 1 */}
-              <Card className="flex-shrink-0 w-64 overflow-hidden border-0 p-0">
-                <div className="relative w-full h-64 bg-blue-600 flex items-center justify-center text-6xl">
-                  👜
-                  <div className="absolute top-3 right-3 bg-[#FFB700] text-black font-bold px-3 py-1 rounded-lg text-lg">$25/day</div>
-                </div>
-                <CardContent className="pt-4 pb-4 px-4">
-                  <CardTitle>Designer Bag</CardTitle>
-                  <CardDescription>Perfect for travel</CardDescription>
-                </CardContent>
-              </Card>
-
-              {/* Card 2 */}
-              <Card className="flex-shrink-0 w-64 overflow-hidden border-0 p-0">
-                <div className="relative w-full h-64 bg-pink-400 flex items-center justify-center text-6xl">
-                  📚
-                  <div className="absolute top-3 right-3 bg-[#FFB700] text-black font-bold px-3 py-1 rounded-lg text-lg">$5/day</div>
-                </div>
-                <CardContent className="pt-4 pb-4 px-4">
-                  <CardTitle>Book Set</CardTitle>
-                  <CardDescription>Expand your collection</CardDescription>
-                </CardContent>
-              </Card>
-
-              {/* Card 3 */}
-              <Card className="flex-shrink-0 w-64 overflow-hidden border-0 p-0">
-                <div className="relative w-full h-64 bg-yellow-300 flex items-center justify-center text-6xl">
-                  🎮
-                  <div className="absolute top-3 right-3 bg-[#FFB700] text-black font-bold px-3 py-1 rounded-lg text-lg">$10/day</div>
-                </div>
-                <CardContent className="pt-4 pb-4 px-4">
-                  <CardTitle>Gaming Console</CardTitle>
-                  <CardDescription>Latest models available</CardDescription>
-                </CardContent>
-              </Card>
-
-              {/* Card 4 */}
-              <Card className="flex-shrink-0 w-64 overflow-hidden border-0 p-0">
-                <div className="relative w-full h-64 bg-green-500 flex items-center justify-center text-6xl">
-                  A mid bike
-                  <div className="absolute top-3 right-3 bg-[#FFB700] text-black font-bold px-3 py-1 rounded-lg text-lg">$15/day</div>
-                </div>
-                <CardContent className="pt-4 pb-4 px-4">
-                  <CardTitle>Mountain Bike</CardTitle>
-                  <CardDescription>Adventure awaits</CardDescription>
-                </CardContent>
-              </Card>
+              )}
             </div>
           </div>
-
-          {/* Navigation buttons */}
-          <button
-            className="embla__button embla__button--prev absolute left-2 top-1/2 -translate-y-1/2 z-10 w-10 h-10 rounded-full bg-black/50 border border-gray-700 flex items-center justify-center shadow-md"
-            onClick={onHeroPrevButtonClick}
-            aria-label="Previous slide"
-          >
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
-              <path d="M15 18L9 12L15 6" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
-          </button>
-          <button
-            className="embla__button embla__button--next absolute right-2 top-1/2 -translate-y-1/2 z-10 w-10 h-10 rounded-full bg-black/50 border border-gray-700 flex items-center justify-center shadow-md"
-            onClick={onHeroNextButtonClick}
-            aria-label="Next slide"
-          >
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
-              <path d="M9 18L15 12L9 6" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
-          </button>
-
-
         </div>
 
         {/* How it works button */}
@@ -411,7 +420,7 @@ export default function home() {
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
             {/* Left: Large headline */}
             <div className="lg:col-span-6">
-              <span className="inline-block mb-6 text-sm text-[#FFA200] tracking-wide">
+              <span className="inline-block mb-6 text-sm text-black tracking-wide">
                 How it works
               </span>
 
@@ -437,33 +446,25 @@ export default function home() {
                   {cards.map((c, i) => (
                     <article
                       key={i}
-                      className="snap-start min-w-[360px] h-[300px] rounded-2xl p-8 flex flex-col justify-between
-                               bg-[#FFB700]
-                                "
+                      className="snap-start min-w-[360px] h-[300px] rounded-2xl p-8 flex flex-col bg-[#FFB700]"
                     >
-                      {/* top art placeholder */}
-                      <div className="flex-1 flex items-center justify-center">
-                        <div className="w-36 h-28 rounded-lg bg-black/40 border border-gray-800 flex items-center justify-center">
-                          {/* replace with SVG or image */}
-                          <svg
-                            width="64"
-                            height="48"
-                            viewBox="0 0 64 48"
-                            fill="none"
-                            xmlns="http://www.w3.org/2000/svg"
-                            className="opacity-30"
-                          >
-                            <rect width="64" height="48" rx="6" fill="#111827" />
-                          </svg>
-                        </div>
+                      {/* top art image */}
+                      <div className="h-32 flex items-center justify-center mb-4 overflow-hidden">
+                        {c.art && (
+                          <img
+                            src={c.art}
+                            alt={c.title}
+                            className="w-full h-full object-cover rounded-lg"
+                          />
+                        )}
                       </div>
 
                       {/* bottom text */}
-                      <div>
+                      <div className="flex-1 flex flex-col justify-end">
                         <h4 className="text-black text-lg font-semibold mb-2">
                           {c.title}
                         </h4>
-                        <p className="text-black text-sm">{c.subtitle}</p>
+                        <p className="text-black text-sm line-clamp-3">{c.subtitle}</p>
                       </div>
                     </article>
                   ))}
