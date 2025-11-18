@@ -1,4 +1,4 @@
-# How to Run the Logistics Demo
+How to Run the Logistics Demo
 
  Prerequisites
 
