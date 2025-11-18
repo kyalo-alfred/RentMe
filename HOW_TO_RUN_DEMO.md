@@ -25,7 +25,7 @@ cd RentMe
 cd server
 ```
 
-### Activate Virtual Environment
+ Activate Virtual Environment
 
 **Windows:**
 ```bash
