@@ -574,12 +574,11 @@ export default function ListingsPage() {
         throw new Error('Selected dates are not available');
       }
       const booking = await createBooking(listingId);
-      setRentSuccess('Booking created successfully! Total price: KES ' + booking.total_price);
-      // Reset form after successful booking
+      setRentSuccess('Booking created successfully! Redirecting to checkout...');
+      // Redirect to checkout after successful booking
       setTimeout(() => {
-        setRentOpenForId(null);
-        resetRentState();
-      }, 2000);
+        window.location.href = `/checkout?listingId=${listingId}&bookingId=${booking.id}`;
+      }, 1500);
     } catch (e: any) {
       setRentError(e.message || 'Failed to rent item');
     } finally {

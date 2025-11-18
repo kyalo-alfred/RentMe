@@ -104,7 +104,7 @@ export default function PostItemPage() {
     submitData.append('price_period', formData.pricePeriod);
     submitData.append('location', formData.location);
     submitData.append('condition', formData.condition);
-    
+
     if (formData.availableFrom) {
       submitData.append('available_from', formData.availableFrom);
     }
@@ -119,7 +119,7 @@ export default function PostItemPage() {
     try {
       const response = await listingsAPI.createListing(submitData);
       setSuccess('Item posted successfully!');
-      
+
       // Redirect to listings page after 1 second
       setTimeout(() => {
         window.location.href = '/listings';

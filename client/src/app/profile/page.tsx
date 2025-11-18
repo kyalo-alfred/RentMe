@@ -8,7 +8,8 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { CircleChevronLeft, User, Package, Settings, LogOut, Edit2, Trash2, Eye } from 'lucide-react';
+import { Calendar } from '@/components/ui/calendar';
+import { CircleChevronLeft, User, Package, Settings, LogOut, Edit2, Trash2 } from 'lucide-react';
 import next from 'next';
 
 export default function AccountPage() {
@@ -42,6 +43,12 @@ export default function AccountPage() {
   const [userListings, setUserListings] = useState<any[]>([]);
   const [listingsLoading, setListingsLoading] = useState(false);
   const [listingsError, setListingsError] = useState('');
+
+  // Edit listing state
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [selectedListing, setSelectedListing] = useState<any>(null);
+  const [showCalendar, setShowCalendar] = useState(false);
+  const [dateRange, setDateRange] = useState<{ from?: Date; to?: Date }>({});
 
   // Redirect if not logged in
   useEffect(() => {
@@ -183,13 +190,88 @@ export default function AccountPage() {
     }
   };
 
+  // Add the deleteListing API call
+  const deleteListing = async (id: number) => {
+    try {
+      const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api';
+      const token = localStorage.getItem('access_token');
+
+      const response = await fetch(`${API_BASE_URL}/listings/${id}/`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to delete listing');
+      }
+
+      // Remove the deleted listing from the state
+      setUserListings((prevListings) => prevListings.filter((listing) => listing.id !== id));
+    } catch (err: any) {
+      console.error('Error deleting listing:', err);
+      setListingsError(err.message || 'Failed to delete listing');
+    }
+  };
+
   const handleDeleteListing = (id: number) => {
-    // Handle listing deletion
-    console.log('Deleting listing:', id);
+    if (confirm('Are you sure you want to delete this listing?')) {
+      deleteListing(id);
+    }
   };
 
   const handleLogout = async () => {
     await logout();
+  };
+
+  // Function to handle opening the edit modal
+  const openEditModal = (listing: any) => {
+    setSelectedListing(listing);
+    setIsEditModalOpen(true);
+  };
+
+  // Function to handle closing the edit modal
+  const closeEditModal = () => {
+    setSelectedListing(null);
+    setIsEditModalOpen(false);
+  };
+
+  // Function to handle saving the edited listing
+  const saveEditedListing = async () => {
+    if (!selectedListing) return;
+
+    try {
+      const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api';
+      const token = localStorage.getItem('access_token');
+
+      const response = await fetch(`${API_BASE_URL}/listings/${selectedListing.id}/`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify(selectedListing),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to update listing');
+      }
+
+      const updatedListing = await response.json();
+
+      // Update the listings state with the edited listing
+      setUserListings((prevListings) =>
+        prevListings.map((listing) =>
+          listing.id === updatedListing.id ? updatedListing : listing
+        )
+      );
+
+      closeEditModal();
+    } catch (err: any) {
+      console.error('Error updating listing:', err);
+      setListingsError(err.message || 'Failed to update listing');
+    }
   };
 
   // Loading state
@@ -422,7 +504,7 @@ export default function AccountPage() {
 
             {/* Listings Tab */}
             {activeTab === 'listings' && (
-              <Card className="border-2 border-[#ffaa1d] shadow-none bg-gray-900">
+              <Card className="border-0 border-[#ffaa1d] shadow-none bg-black">
                 <CardHeader className="border-b border-[#ffaa1d]">
                   <div className="flex items-center justify-between">
                     <div>
@@ -462,7 +544,7 @@ export default function AccountPage() {
                       {userListings.map((listing) => (
                         <div
                           key={listing.id}
-                          className="flex gap-4 p-4 border-2 border-[#ffaa1d] rounded hover:bg-gray-800 transition-colors"
+                          className="flex gap-4 p-4 border-1  border-[#ffaa1d] rounded-md hover:bg-gray-800 transition-colors"
                         >
                           {listing.image && (
                             <img
@@ -501,6 +583,7 @@ export default function AccountPage() {
                                 size="sm"
                                 variant="outline"
                                 className="border-[#ffaa1d] text-[#ffaa1d] hover:bg-[#ffaa1d] hover:text-gray-900"
+                                onClick={() => openEditModal(listing)}
                               >
                                 <Edit2 size={14} className="mr-1" />
                                 Edit
@@ -526,7 +609,7 @@ export default function AccountPage() {
 
             {/* Settings Tab */}
             {activeTab === 'settings' && (
-              <Card className="border-2 border-[#ffaa1d] shadow-none bg-gray-900">
+              <Card className="border-0 border-[#ffaa1d] shadow-none bg-black">
                 <CardHeader className="border-b border-[#ffaa1d]">
                   <CardTitle className="text-2xl text-white">Account Settings</CardTitle>
                   <CardDescription className="text-gray-400">
@@ -608,6 +691,103 @@ export default function AccountPage() {
           </div>
         </div>
       </div>
+
+      {/* Edit Listing Modal */}
+      {isEditModalOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-75 backdrop-blur-sm flex items-center justify-center z-50">
+          <div className="bg-black border-1 border-[#ffaa1d] rounded-lg p-6 w-full max-w-md max-h-[90vh] overflow-y-auto">
+            <h2 className="text-2xl font-bold text-white mb-4">Edit Listing</h2>
+
+            <div className="space-y-4">
+              <div>
+                <label className="text-white font-medium">Title</label>
+                <input
+                  type="text"
+                  value={selectedListing?.title || ''}
+                  onChange={(e) =>
+                    setSelectedListing({ ...selectedListing, title: e.target.value })
+                  }
+                  className="w-full p-2 border border-[#ffaa1d] bg-gray-800 text-white rounded"
+                />
+              </div>
+
+              <div>
+                <label className="text-white font-medium">Active</label>
+                <select
+                  value={selectedListing?.is_active ? 'true' : 'false'}
+                  onChange={(e) =>
+                    setSelectedListing({
+                      ...selectedListing,
+                      is_active: e.target.value === 'true',
+                    })
+                  }
+                  className="w-full p-2 border border-[#ffaa1d] bg-gray-800 text-white rounded"
+                >
+                  <option value="true">Active</option>
+                  <option value="false">Inactive</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="text-white font-medium block mb-2">Availability Dates</label>
+                <div className="relative">
+                  <input
+                    type="text"
+                    value={
+                      dateRange.from && dateRange.to
+                        ? `${dateRange.from.toLocaleDateString()} - ${dateRange.to.toLocaleDateString()}`
+                        : selectedListing?.availability_dates || ''
+                    }
+                    readOnly
+                    onClick={() => setShowCalendar(!showCalendar)}
+                    className="w-full p-2 border border-[#ffaa1d] bg-gray-800 text-white rounded cursor-pointer"
+                    placeholder="Click to select dates"
+                  />
+                  
+                  {showCalendar && (
+                    <div className="absolute top-full left-0 mt-2 bg-gray-800 border border-[#ffaa1d] rounded-lg p-2 z-10 shadow-lg">
+                      <Calendar
+                        mode="range"
+                        selected={{ from: dateRange.from, to: dateRange.to }}
+                        onSelect={(range: any) => {
+                          setDateRange(range || {});
+                          if (range?.from && range?.to) {
+                            const fromDate = range.from.toISOString().split('T')[0];
+                            const toDate = range.to.toISOString().split('T')[0];
+                            setSelectedListing({
+                              ...selectedListing,
+                              availability_dates: `${fromDate} to ${toDate}`,
+                            });
+                            setShowCalendar(false);
+                          }
+                        }}
+                        disabled={(date) => date < new Date()}
+                        numberOfMonths={1}
+                        className="text-white text-sm bg-black"
+                      />
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            <div className="flex justify-end mt-6 gap-4">
+              <button
+                onClick={closeEditModal}
+                className="px-4 py-2 bg-gray-700 text-white rounded hover:bg-gray-600"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={saveEditedListing}
+                className="px-4 py-2 bg-[#ffaa1d] text-gray-900 rounded hover:bg-[#ff9500]"
+              >
+                Save
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
