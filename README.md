@@ -1,6 +1,6 @@
 # 🏠 RentMe
 
-**RentMe** is a web-based platform that allows users to **rent out items** they own to others temporarily.  
+RentMe is a web-based platform that allows users to **rent out items** they own to others temporarily.  
 Users can register, post items, book rentals, make demo payments, and choose mock couriers.  
 Admins can manage users and listings through a dashboard.
 
