@@ -4,7 +4,7 @@
 Users can register, post items, book rentals, make demo payments, and choose mock couriers.  
 Admins can manage users and listings through a dashboard.
 
-----
+-----
 
 ## ⚙️ Tech Stack
 
