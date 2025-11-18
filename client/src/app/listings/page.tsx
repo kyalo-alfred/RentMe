@@ -526,7 +526,7 @@ export default function ListingsPage() {
       start_date: startDate,
       end_date: endDate,
     });
-    const res = await fetch(`${API_BASE_URL}/bookings/availability/check/?${params.toString()}`);
+    const res = await fetch(`${API_BASE_URL}/bookings/availability/check_availability/?${params.toString()}`);
     if (!res.ok) {
       const err = await res.json().catch(() => ({}));
       throw new Error(err.detail || 'Failed to check availability');
@@ -546,7 +546,7 @@ export default function ListingsPage() {
         'Authorization': `Bearer ${token}`,
       },
       body: JSON.stringify({
-        listing_id: listingId,
+        listing: listingId,
         start_date: startDate,
         end_date: endDate,
         notes: '',
@@ -555,7 +555,7 @@ export default function ListingsPage() {
     if (!res.ok) {
       const err = await res.json().catch(() => ({}));
       // DRF validation error shape
-      const msg = err?.dates || err?.detail || Object.values(err)?.[0] || 'Failed to create booking';
+      const msg = err?.dates || err?.start_date || err?.end_date || err?.detail || Object.values(err)?.[0] || 'Failed to create booking';
       throw new Error(Array.isArray(msg) ? msg[0] : String(msg));
     }
     return res.json();
@@ -573,8 +573,13 @@ export default function ListingsPage() {
       if (!avail?.available) {
         throw new Error('Selected dates are not available');
       }
-      await createBooking(listingId);
-      setRentSuccess('Booking created successfully');
+      const booking = await createBooking(listingId);
+      setRentSuccess('Booking created successfully! Total price: KES ' + booking.total_price);
+      // Reset form after successful booking
+      setTimeout(() => {
+        setRentOpenForId(null);
+        resetRentState();
+      }, 2000);
     } catch (e: any) {
       setRentError(e.message || 'Failed to rent item');
     } finally {
@@ -973,21 +978,27 @@ export default function ListingsPage() {
                 <div className="grid grid-cols-1 gap-3 mb-4">
                   <div>
                     <label className="block text-sm font-medium mb-1">Start date</label>
-                    <Input
-                      type="date"
-                      value={startDate}
-                      onChange={(e) => setStartDate(e.target.value)}
-                      className="border-black"
-                    />
+                    <div className="relative">
+                      <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
+                      <Input
+                        type="date"
+                        value={startDate}
+                        onChange={(e) => setStartDate(e.target.value)}
+                        className="pl-10 border-black"
+                      />
+                    </div>
                   </div>
                   <div>
                     <label className="block text-sm font-medium mb-1">End date</label>
-                    <Input
-                      type="date"
-                      value={endDate}
-                      onChange={(e) => setEndDate(e.target.value)}
-                      className="border-black"
-                    />
+                    <div className="relative">
+                      <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
+                      <Input
+                        type="date"
+                        value={endDate}
+                        onChange={(e) => setEndDate(e.target.value)}
+                        className="pl-10 border-black"
+                      />
+                    </div>
                   </div>
                 </div>
 

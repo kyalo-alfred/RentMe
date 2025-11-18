@@ -105,6 +105,18 @@ class BookingCreateSerializer(serializers.ModelSerializer):
         start_date = data.get('start_date')
         end_date = data.get('end_date')
 
+        # Validate dates
+        if end_date < start_date:
+            raise serializers.ValidationError({
+                'end_date': 'End date must be after start date'
+            })
+
+        from django.utils import timezone
+        if start_date < timezone.now().date():
+            raise serializers.ValidationError({
+                'start_date': 'Start date cannot be in the past'
+            })
+
         # Check for overlapping bookings
         overlapping_bookings = Booking.objects.filter(
             listing=listing,
@@ -131,5 +143,39 @@ class BookingCreateSerializer(serializers.ModelSerializer):
             })
 
         return data
+
+    def create(self, validated_data):
+        """Calculate total price and create booking"""
+        listing = validated_data['listing']
+        start_date = validated_data['start_date']
+        end_date = validated_data['end_date']
+        
+        # Calculate duration in days
+        duration_days = (end_date - start_date).days + 1
+        
+        # Calculate total price based on listing's price_period
+        price = listing.price
+        price_period = listing.price_period
+        
+        if price_period == 'hour':
+            # Assume 8 hours per day for hourly rentals
+            total_price = price * duration_days * 8
+        elif price_period == 'day':
+            total_price = price * duration_days
+        elif price_period == 'week':
+            # Convert to weeks, rounding up
+            weeks = (duration_days + 6) // 7
+            total_price = price * weeks
+        elif price_period == 'month':
+            # Convert to months, rounding up
+            months = (duration_days + 29) // 30
+            total_price = price * months
+        else:
+            # Default to daily rate
+            total_price = price * duration_days
+        
+        validated_data['total_price'] = total_price
+        
+        return super().create(validated_data)
 
 
