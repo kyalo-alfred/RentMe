@@ -12,7 +12,7 @@ Admins can manage users and listings through a dashboard.
 - **Backend:** Django (Python)
 - **Database:** PostgreSQL / SQLite (development)
 
----
+----
 
 ## ✨ Main Features
 
