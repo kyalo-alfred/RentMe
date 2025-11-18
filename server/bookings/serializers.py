@@ -7,9 +7,12 @@ User = get_user_model()
 
 class BookingSerializer(serializers.ModelSerializer):
     """Serializer for Booking model"""
-    renter_username = serializers.CharField(source='renter.username', read_only=True)
-    renter_email = serializers.EmailField(source='renter.email', read_only=True)
-    listing_title = serializers.CharField(source='listing.title', read_only=True)
+    renter_username = serializers.CharField(
+        source='renter.username', read_only=True)
+    renter_email = serializers.EmailField(
+        source='renter.email', read_only=True)
+    listing_title = serializers.CharField(
+        source='listing.title', read_only=True)
     duration_days = serializers.IntegerField(read_only=True)
     is_active = serializers.BooleanField(read_only=True)
 
@@ -57,7 +60,8 @@ class BookingSerializer(serializers.ModelSerializer):
 class AvailabilitySerializer(serializers.ModelSerializer):
     """Serializer for Availability model"""
     booking_details = BookingSerializer(source='booking', read_only=True)
-    listing_title = serializers.CharField(source='listing.title', read_only=True)
+    listing_title = serializers.CharField(
+        source='listing.title', read_only=True)
 
     class Meta:
         model = Availability
@@ -149,14 +153,14 @@ class BookingCreateSerializer(serializers.ModelSerializer):
         listing = validated_data['listing']
         start_date = validated_data['start_date']
         end_date = validated_data['end_date']
-        
+
         # Calculate duration in days
         duration_days = (end_date - start_date).days + 1
-        
+
         # Calculate total price based on listing's price_period
         price = listing.price
         price_period = listing.price_period
-        
+
         if price_period == 'hour':
             # Assume 8 hours per day for hourly rentals
             total_price = price * duration_days * 8
@@ -173,9 +177,7 @@ class BookingCreateSerializer(serializers.ModelSerializer):
         else:
             # Default to daily rate
             total_price = price * duration_days
-        
+
         validated_data['total_price'] = total_price
-        
+
         return super().create(validated_data)
-
-
