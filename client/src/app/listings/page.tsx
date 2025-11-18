@@ -499,7 +499,7 @@ export default function ListingsPage() {
   const categories = ['all', 'Electronics', 'Tools', 'Outdoor', 'Sports', 'Events'];
 
   // Extract unique locations from listings
-  const locations = listings && listings.length > 0 
+  const locations = listings && listings.length > 0
     ? ['all', ...Array.from(new Set(listings.map(l => l.location)))]
     : ['all'];
 

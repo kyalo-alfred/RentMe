@@ -24,6 +24,11 @@ urlpatterns = [
     path('api/auth/', include('accounts.urls')),
     path('api/logistics/', include('logistics_demo.urls')),
     path('api/bookings/', include('bookings.urls')),
-	path('api/', include('listings.urls')),
-      path('api/payments/', include('payments.urls')),
+    path('api/', include('listings.urls')),
+    path('api/payments/', include('payments.urls')),
 ]
+
+# Serve media files in development
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL,
+                          document_root=settings.MEDIA_ROOT)

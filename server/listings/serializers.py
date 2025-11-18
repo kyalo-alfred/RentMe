@@ -20,6 +20,7 @@ class ListingSerializer(serializers.ModelSerializer):
         write_only=True,
         required=False
     )
+    image = serializers.SerializerMethodField()
 
     class Meta:
         model = Listing
@@ -47,6 +48,13 @@ class ListingSerializer(serializers.ModelSerializer):
         ]
         read_only_fields = ['created_at', 'updated_at', 'owner',
                             'views_count', 'average_rating', 'total_reviews']
+
+    def get_image(self, obj):
+        if obj.image:
+            request = self.context.get('request')
+            if request is not None:
+                return request.build_absolute_uri(obj.image.url)
+        return None
 
     def create(self, validated_data):
         request = self.context.get('request')
