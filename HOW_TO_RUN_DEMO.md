@@ -1,6 +1,6 @@
 # How to Run the Logistics Demo
 
-## Prerequisites
+ Prerequisites
 
 - Python 3.8+ installed
 - Node.js 18+ installed
